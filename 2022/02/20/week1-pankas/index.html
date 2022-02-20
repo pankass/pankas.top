@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="ch-ZN">
+  <head>
+  <meta charset="UTF-8">
+  <meta 
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <meta 
+    http-equiv="X-UA-Compatible" 
+    content="ie=edge">
+  <meta 
+    name="theme-color" 
+    content="#fff" 
+    id="theme-color">
+  <meta 
+    name="description" 
+    content="这是pankas的小站~(-V-)~欢迎访问">
+  <link 
+    rel="icon" 
+    href="/img/logo.png">
+  <title>HGAME 2022 Week1 writeup by pankas</title>
+  
+    
+      <meta 
+        property="og:title" 
+        content="HGAME 2022 Week1 writeup by pankas">
+    
+    
+      <meta 
+        property="og:url" 
+        content="https://pankas.top/2022/02/20/week1-pankas/index.html">
+    
+    
+      <meta 
+        property="og:img" 
+        content="/img/logo.png">
+    
+    
+      <meta 
+        property="og:img" 
+        content="这是pankas的小站~(-V-)~欢迎访问">
+    
+    
+      <meta 
+        property="og:type" 
+        content="article">
+      <meta 
+        property="og:article:published_time" 
+        content="2022-02-20">
+      <meta 
+        property="og:article:modified_time" 
+        content="2022-02-20">
+      <meta 
+        property="og:article:author" 
+        content="pankas">
+      
+        
+          <meta 
+            property="og:article:tag" 
+            content="CTF HGAME">
+        
+      
+    
+  
+  <script>
+    function loadScript(url, cb) {
+      var script = document.createElement('script');
+      script.src = url;
+      if (cb) script.onload = cb;
+      script.async = true;
+      document.body.appendChild(script);
+    }
+    function loadCSS(href, data, attr) {
+      var sheet = document.createElement('link');
+      sheet.ref = 'stylesheet';
+      sheet.href = href;
+      sheet.dataset[data] = attr;
+      document.head.appendChild(sheet);
+    }
+    function changeCSS(cssFile, data, attr) {
+      var oldlink = document.querySelector(data);
+      var newlink = document.createElement("link");
+      newlink.setAttribute("rel", "stylesheet");
+      newlink.setAttribute("href", cssFile);
+      newlink.dataset.prism = attr;
+      document.head.replaceChild(newlink, oldlink);
+    }
+  </script>
+  
+    
+      
+      
+      
+      
+        
+        
+        
+        <script>
+          function prismThemeChange() {
+            if(document.getElementById('theme-color').dataset.mode === 'dark') {
+              if(document.querySelector('[data-prism]')) {
+                changeCSS('/js/lib/prism/prism-tomorrow.min.css', '[data-prism]', 'prism-tomorrow');
+              } else {
+                loadCSS('/js/lib/prism/prism-tomorrow.min.css', 'prism', 'prism-tomorrow');
+              }
+            } else {
+              if(document.querySelector('[data-prism]')) {
+                changeCSS('/js/lib/prism/prism.min.css', '[data-prism]', 'prism');
+              } else {
+                loadCSS('/js/lib/prism/prism.min.css', 'prism', 'prism');
+              }
+            }
+          }
+          prismThemeChange()
+        </script>
+      
+      
+        
+        <link rel="stylesheet" href="/js/lib/prism/prism-line-numbers.min.css">
+      
+    
+  
+  <script>
+    // control reverse button
+    var reverseDarkList = {
+      dark: 'light',
+      light: 'dark'
+    };
+    var themeColor = {
+      dark: '#1c1c1e',
+      light: '#fff'
+    }
+    // get the data of css prefers-color-scheme
+    var getCssMediaQuery = function() {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+    // reverse current darkmode setting function
+    var reverseDarkModeSetting = function() {
+      var setting = localStorage.getItem('user-color-scheme');
+      if(reverseDarkList[setting]) {
+        setting = reverseDarkList[setting];
+      } else if(setting === null) {
+        setting = reverseDarkList[getCssMediaQuery()];
+      } else {
+        return;
+      }
+      localStorage.setItem('user-color-scheme', setting);
+      return setting;
+    };
+    // apply current darkmode setting
+  </script>
+  
+    <script>
+      var setDarkmode = function(mode) {
+      var setting = mode || localStorage.getItem('user-color-scheme');
+      if(setting === getCssMediaQuery()) {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[setting];
+        document.getElementById('theme-color').dataset.mode = setting;
+        prismThemeChange();
+      } else if(reverseDarkList[setting]) {
+        document.documentElement.setAttribute('data-user-color-scheme', setting);
+        document.getElementById('theme-color').content = themeColor[setting];
+        document.getElementById('theme-color').dataset.mode = setting;
+        prismThemeChange();
+      } else {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[getCssMediaQuery()];
+        document.getElementById('theme-color').dataset.mode = getCssMediaQuery();
+        prismThemeChange();
+      }
+    };
+    setDarkmode();
+    </script>
+  
+  
+  <link rel="preload" href="//at.alicdn.com/t/font_1946621_i1kgafibvw.css" as="style" >
+  <link rel="preload" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css" as="style" >
+  
+  
+    <link rel="preload" href="/js/lib/lightbox/baguetteBox.min.js" as="script">
+    <link rel="preload" href="/js/lib/lightbox/baguetteBox.min.css" as="style" >
+  
+  
+    <link rel="preload" href="/js/lib/lozad.min.js" as="script">
+  
+  
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="/css/main.css">
+  
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1946621_i1kgafibvw.css">
+  
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css">
+  
+    <link rel="stylesheet" href="/js/lib/lightbox/baguetteBox.min.css">
+  
+<meta name="generator" content="Hexo 6.0.0"></head>
+
+  <body>
+    <div class="wrapper">
+       
+      <nav class="navbar">
+  <div class="navbar-logo">
+    <span class="navbar-logo-main">
+      
+        <img 
+          class="navbar-logo-img"
+          width="32"
+          height="32"
+          src="/img/logo.png" 
+          alt="blog logo">
+      
+      <span class="navbar-logo-dsc">pankas'blog</span>
+    </span>
+  </div>
+  <div class="navbar-menu">
+    
+      <a 
+        href="/" 
+        class="navbar-menu-item">
+        
+          首页
+        
+      </a>
+    
+      <a 
+        href="/archives" 
+        class="navbar-menu-item">
+        
+          归档
+        
+      </a>
+    
+      <a 
+        href="/tags" 
+        class="navbar-menu-item">
+        
+          标签
+        
+      </a>
+    
+      <a 
+        href="/categories" 
+        class="navbar-menu-item">
+        
+          分类
+        
+      </a>
+    
+      <a 
+        href="/about" 
+        class="navbar-menu-item">
+        
+          关于
+        
+      </a>
+    
+      <a 
+        href="/links" 
+        class="navbar-menu-item">
+        
+          友链
+        
+      </a>
+    
+    <a 
+      class="navbar-menu-item darknavbar" 
+      id="dark">
+      <i class="iconfont icon-weather"></i>
+    </a>
+    <a 
+      class="navbar-menu-item searchnavbar" 
+      id="search">
+      <i 
+        class="iconfont icon-search" 
+        style="font-size: 1.2rem; font-weight: 400;">
+      </i>
+    </a>
+  </div>
+</nav> 
+      
+      <div 
+        id="local-search" 
+        style="display: none">
+        <input
+          class="navbar-menu-item"
+          id="search-input"
+          placeholder="请输入搜索内容..." />
+        <div id="search-content"></div>
+      </div>
+      
+      <div class="section-wrap">
+        <div class="container">
+          <div class="columns">
+            <main class="main-column">
+<article class="card card-content">
+  <header>
+    <h1 class="post-title">
+      HGAME 2022 Week1 writeup by pankas
+    </h1>
+  </header>
+  <div class="post-meta post-show-meta">
+    <time datetime="2022-02-20T06:36:52.000Z">
+      <i 
+        class="iconfont icon-calendar" 
+        style="margin-right: 2px;">
+      </i>
+      <span>2022-02-20</span>
+    </time>
+    
+      <span class="dot"></span>
+      
+        <a 
+          href="/categories/CTF-WP/" 
+          class="post-meta-link">
+          CTF-WP
+        </a>
+      
+    
+    
+      <span class="dot"></span>
+      <span>961 字</span>
+    
+  </div>
+  
+    <div 
+      class="post-meta post-show-meta" 
+      style="margin-top: -10px;">
+      <div style="display: flex; align-items: center;">
+        <i 
+          class="iconfont icon-biaoqian" 
+          style="margin-right: 2px; font-size: 1.15rem;">
+        </i>
+        
+          
+          <a 
+            href="/tags/CTF-HGAME/" 
+            class="post-meta-link">
+            CTF HGAME
+          </a>
+        
+      </div>
+    </div>
+  
+  </header>
+  <div 
+    id="section" 
+    class="post-content">
+    <p>[TOC]</p>
+<h2 id="web"><a href="#web" class="headerlink" title="web"></a>web</h2><h3 id="easy-auth"><a href="#easy-auth" class="headerlink" title="easy_auth"></a>easy_auth</h3><p>​    先看一下题目，有提示</p>
+<pre class="line-numbers language-none"><code class="language-none">尊贵的admin写了个todo帮助自己管理日常，但他好像没调试完就部署了....一个月后，当他再一次打开他的小网站，似乎忘记了密码...他的todo之前记录了很重要的东西，快帮帮他
+不要爆破！<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>这里目标网站时在开发中的，flag应该在admin用户里。</p>
+<p><img src="/hgameWp.assets/image-20220127132929885.png" alt="image-20220127132929885" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/hgameWp.assets/image-20220127132929885.png" class="lozad post-image"></p>
+<p>打开发现输入admin密码随便写一个，结果不对，那注册一个看看</p>
+<p>注册号登录进去</p>
+<img src="hgameWp.assets/image-20220127133114867.png" alt="image-20220127133114867" style="zoom: 33%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="hgameWp.assets/image-20220127133114867.png" class="lozad post-image">
+
+<p>看了下这个页面也没什么，抓一下包发现token</p>
+<p><img src="/hgameWp.assets/image-20220127133220957.png" alt="image-20220127133220957" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/hgameWp.assets/image-20220127133220957.png" class="lozad post-image"></p>
+<p>这个token是<strong>JWT</strong>，网上搜索一下进能知道只要找到了JWT的secret就可以伪造token发送到服务器通过验证了</p>
+<p>由于题目说是还在调试当中， 猜测secret为空，试一试。</p>
+<p>到<strong>jwt.io</strong>这个网站里</p>
+<p><img src="/hgameWp.assets/image-20220127133830723.png" alt="image-20220127133830723" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/hgameWp.assets/image-20220127133830723.png" class="lozad post-image"></p>
+<p>将UserName改为admin，ID改为1(最贵的admin开发者肯定是网站注册的第一个人)，下面的secret为空，</p>
+<p>将修改后的token发送</p>
+<p><img src="/hgameWp.assets/image-20220127134122639.png" alt="image-20220127134122639" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/hgameWp.assets/image-20220127134122639.png" class="lozad post-image"></p>
+<p>拿到flag</p>
+<p><img src="/hgameWp.assets/image-20220127134200287.png" alt="image-20220127134200287" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/hgameWp.assets/image-20220127134200287.png" class="lozad post-image"></p>
+<p>这里简单说一下原理</p>
+<pre class="line-numbers language-none"><code class="language-none">验证方法：首先服务端会产生一个secret，然后以这个secret作为密钥，使用第一部分选择的加密方式（这里就是HS256），对第一部分和第二部分拼接的结果进行加密，然后把加密结果放到第三部分。
+因为加密算法我们已经知道了，如果我们只要再得到加密的secret，我们就能伪造数据，并且通过服务器的检查。<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+
+
+<h3 id="Tetris-plus"><a href="#Tetris-plus" class="headerlink" title="Tetris plus"></a>Tetris plus</h3><p>提示说要玩够3000分，不可能的。像这类浏览器小游戏那肯定是先查看js源码。</p>
+<p><img src="/hgameWp.assets/image-20220127140709436.png" alt="image-20220127140709436" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/hgameWp.assets/image-20220127140709436.png" class="lozad post-image"></p>
+<p>结果在这个checking.js文件里发现了jsfuck代码，jsfuck可以直接放到控制台运行，试试看。</p>
+<p><img src="/hgameWp.assets/image-20220127140855716.png" alt="image-20220127140855716" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/hgameWp.assets/image-20220127140855716.png" class="lozad post-image"></p>
+<p>放到控制台运行拿到flag。</p>
+<h3 id="Fujiwara-Tofu-Shop"><a href="#Fujiwara-Tofu-Shop" class="headerlink" title="Fujiwara Tofu Shop"></a>Fujiwara Tofu Shop</h3><p>秋名山飙车啊，进去看一看。</p>
+<img src="hgameWp.assets/image-20220127141047327.png" alt="image-20220127141047327" style="zoom: 80%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="hgameWp.assets/image-20220127141047327.png" class="lozad post-image">
+
+<p>提示说首先要到<code>qiumingshan.net</code>这个地方去，那么在web中的意思就是要让你的referer为<code>qiumingshan.net</code></p>
+<p>用HackBar添加请求头referer</p>
+<img src="hgameWp.assets/image-20220127141412800.png" alt="image-20220127141412800" style="zoom:67%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="hgameWp.assets/image-20220127141412800.png" class="lozad post-image">
+
+<p>Execute后又出现</p>
+<img src="hgameWp.assets/image-20220127141606300.png" alt="image-20220127141606300" style="zoom:80%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="hgameWp.assets/image-20220127141606300.png" class="lozad post-image">
+
+<p>通行证啊，那么修改一下User-Agent为<code>Hachi-Roku</code>即可</p>
+<img src="hgameWp.assets/image-20220127141753777.png" alt="image-20220127141753777" style="zoom:80%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="hgameWp.assets/image-20220127141753777.png" class="lozad post-image">
+
+<p>继续得到</p>
+<img src="hgameWp.assets/image-20220127141835437.png" alt="image-20220127141835437" style="zoom:80%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="hgameWp.assets/image-20220127141835437.png" class="lozad post-image">
+
+<p>要求其cookie的<strong>味道</strong>是<code>Raspberry</code>，那么在Cookies上添加上<code>flavor=Raspberry</code></p>
+<img src="hgameWp.assets/image-20220127142146069.png" alt="image-20220127142146069" style="zoom:80%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="hgameWp.assets/image-20220127142146069.png" class="lozad post-image">
+
+<p>之后…..还有，要求加油到100，查看请求头可以看到当前<code>Gasoline</code>为0</p>
+<p><img src="/hgameWp.assets/image-20220127142312068.png" alt="image-20220127142312068" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/hgameWp.assets/image-20220127142312068.png" class="lozad post-image"></p>
+<p>那么在请求头里添加上<code>Gasoline: 100</code>即可</p>
+<p><img src="/hgameWp.assets/image-20220127142742778.png" alt="image-20220127142742778" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/hgameWp.assets/image-20220127142742778.png" class="lozad post-image"></p>
+<p>之后又要求其请求从本地发出来</p>
+<img src="hgameWp.assets/image-20220127142906082.png" alt="image-20220127142906082" style="zoom:67%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="hgameWp.assets/image-20220127142906082.png" class="lozad post-image">
+
+
+
+<p>那可以使用伪造请求IP的方法，又如下几种</p>
+<pre class="line-numbers language-none"><code class="language-none">X-Forwarded-For:
+X-Forwarded-Host:
+X-Client-IP:
+X-remote-IP:
+X-remote-addr:
+True-Client-IP:
+Client-IP:
+X-Real-IP:<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>全都试一遍发现只有<code>X-Real-IP</code>没有被ban，伪造IP为本地127.0.0.1</p>
+<img src="hgameWp.assets/image-20220127143201763.png" alt="image-20220127143201763" style="zoom:80%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="hgameWp.assets/image-20220127143201763.png" class="lozad post-image">
+
+<p>执行后成功拿到flag</p>
+<p><img src="/hgameWp.assets/image-20220127143402852.png" alt="image-20220127143402852" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/hgameWp.assets/image-20220127143402852.png" class="lozad post-image"></p>
+<h3 id="蛛蛛…嘿嘿♥我的蛛蛛"><a href="#蛛蛛…嘿嘿♥我的蛛蛛" class="headerlink" title="蛛蛛…嘿嘿♥我的蛛蛛"></a>蛛蛛…嘿嘿♥我的蛛蛛</h3><p>这题也是个小游戏，这个按钮也是越点越多，而且只有一个是真的。先玩几关看一下它响应的内容，很有规律。</p>
+<p>每次都会在原url基础上拼接一个<code>?key=##########</code>。那直接交给爬虫。</p>
+<p><img src="/hgameWp.assets/image-20220127163416048.png" alt="image-20220127163416048" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/hgameWp.assets/image-20220127163416048.png" class="lozad post-image"></p>
+<p>不废话，上代码。</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> requests
+<span class="token keyword">import</span> time
+<span class="token keyword">def</span> <span class="token function">run</span><span class="token punctuation">(</span>url<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    newUrl <span class="token operator">=</span> url
+    <span class="token keyword">while</span> <span class="token boolean">True</span><span class="token punctuation">:</span>
+        response <span class="token operator">=</span> requests<span class="token punctuation">.</span>get<span class="token punctuation">(</span>newUrl<span class="token punctuation">)</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>text<span class="token punctuation">[</span>response<span class="token punctuation">.</span>text<span class="token punctuation">.</span>find<span class="token punctuation">(</span><span class="token string">'&lt;h1>'</span><span class="token punctuation">)</span><span class="token operator">+</span><span class="token number">4</span><span class="token punctuation">:</span>response<span class="token punctuation">.</span>text<span class="token punctuation">.</span>find<span class="token punctuation">(</span><span class="token string">'&lt;/h1>'</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+        index <span class="token operator">=</span> response<span class="token punctuation">.</span>text<span class="token punctuation">.</span>find<span class="token punctuation">(</span><span class="token string">'?key'</span><span class="token punctuation">)</span><span class="token comment"># 没有找到find返回-1</span>
+        <span class="token keyword">if</span> index <span class="token operator">==</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">:</span>
+            <span class="token keyword">print</span><span class="token punctuation">(</span>newUrl<span class="token punctuation">)</span>
+            exit<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span>
+        text <span class="token operator">=</span> response<span class="token punctuation">.</span>text<span class="token punctuation">[</span>index<span class="token punctuation">:</span><span class="token punctuation">]</span>
+        newUrl <span class="token operator">=</span> url <span class="token operator">+</span> text<span class="token punctuation">[</span><span class="token punctuation">:</span>text<span class="token punctuation">.</span>find<span class="token punctuation">(</span><span class="token string">'">'</span><span class="token punctuation">)</span><span class="token punctuation">]</span>
+        time<span class="token punctuation">.</span>sleep<span class="token punctuation">(</span><span class="token number">0.5</span><span class="token punctuation">)</span>
+<span class="token keyword">if</span> __name__ <span class="token operator">==</span> <span class="token string">'__main__'</span><span class="token punctuation">:</span>
+    run<span class="token punctuation">(</span><span class="token string">'https://hgame-spider.vidar.club/90bc5cb81b'</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<img src="hgameWp.assets/image-20220127163813449.png" alt="image-20220127163813449" style="zoom:80%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="hgameWp.assets/image-20220127163813449.png" class="lozad post-image">
+
+<p>发现在100关后面，点开爬到的url</p>
+<img src="hgameWp.assets/image-20220127163922985.png" alt="image-20220127163922985" style="zoom:80%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="hgameWp.assets/image-20220127163922985.png" class="lozad post-image">
+
+<p>在请求头里发现flag</p>
+<h2 id="Misc"><a href="#Misc" class="headerlink" title="Misc"></a>Misc</h2><h3 id="好康的流量"><a href="#好康的流量" class="headerlink" title="好康的流量"></a>好康的流量</h3><p>下载附件拿到一份截获的流量，用wireshark打开用导出为邮件</p>
+<p><img src="/hgameWp.assets/image-20220128152056822.png" alt="image-20220128152056822" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/hgameWp.assets/image-20220128152056822.png" class="lozad post-image"></p>
+<p>拿到<strong>涩图</strong></p>
+<img src="hgameWp.assets/image-20220128152140055.png" alt="image-20220128152140055" style="zoom:50%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="hgameWp.assets/image-20220128152140055.png" class="lozad post-image">
+
+<p>这个图片试了很多方法，最后发现使用stegsolver打开发现一个条形码。</p>
+<p><img src="/hgameWp.assets/image-20220128152341206.png" alt="image-20220128152341206" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/hgameWp.assets/image-20220128152341206.png" class="lozad post-image"></p>
+<p>扫码拿到一半的flag。</p>
+<p>还有一半应该是lsb隐藏的。</p>
+<p><img src="/hgameWp.assets/image-20220128152834181.png" alt="image-20220128152834181" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/hgameWp.assets/image-20220128152834181.png" class="lozad post-image"></p>
+<p>使用工具拿到另一半。（这里其实是试出来的）</p>
+<h2 id="饭卡的uno"><a href="#饭卡的uno" class="headerlink" title="饭卡的uno"></a>饭卡的uno</h2><p>下载附件使用 <strong>010editor</strong>打开就是flag</p>
+<p><img src="/hgameWp.assets/image-20220128153720642.png" alt="image-20220128153720642" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/hgameWp.assets/image-20220128153720642.png" class="lozad post-image"></p>
+
+  </div>
+  <div>
+    
+      <div 
+        class="post-note note-warning copyright" 
+        style="margin-top: 42px">
+        <p>
+          <span style="font-weight: bold;">作者：</span><a 
+            target="_blank" 
+            rel="nofollow noopener noreferrer" 
+            href="/about">
+            pankas
+          </a>
+        </p>
+        <p>
+          <span style="font-weight: bold;">文章链接：</span><a 
+            target="_blank" 
+            rel="nofollow noopener noreferrer" 
+            href="https://pankas.top/2022/02/20/week1-pankas/">
+            https://pankas.top/2022/02/20/week1-pankas/
+          </a>
+        </p>
+        <p><span style="font-weight: bold;">版权声明：</span>转载请注明出处！</p>
+      </div>
+    
+  </div>
+</article>
+<div class="nav">
+  
+    <div class="nav-item-prev">
+      <a 
+        href="/2022/02/20/%E5%AF%92%E5%81%87%E6%80%BB%E7%BB%93/" 
+        class="nav-link">
+        <i class="iconfont icon-left nav-prev-icon"></i>
+        <div>
+          <div class="nav-label">上一篇</div>
+          
+            <div class="nav-title">寒假总结 </div>
+          
+        </div>
+      </a>
+    </div>
+  
+  
+    <div class="nav-item-next">
+      <a 
+        href="/2022/02/20/week3-pankas/" 
+        class="nav-link">
+        <div>
+          <div class="nav-label">下一篇</div>
+          
+            <div class="nav-title">HGAME 2022 Week3 writeup by pankas </div>
+          
+        </div>
+        <i class="iconfont icon-right nav-next-icon"></i>
+      </a>
+    </div>
+  
+</div>
+
+<div 
+  class="card card-content toc-card" 
+  id="mobiletoc">
+  <div class="toc-header">
+  <i 
+    class="iconfont icon-menu" 
+    style="padding-right: 2px;">
+  </i>目录
+</div>
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#web"><span class="toc-text">web</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#easy-auth"><span class="toc-text">easy_auth</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tetris-plus"><span class="toc-text">Tetris plus</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Fujiwara-Tofu-Shop"><span class="toc-text">Fujiwara Tofu Shop</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%9B%9B%E8%9B%9B%E2%80%A6%E5%98%BF%E5%98%BF%E2%99%A5%E6%88%91%E7%9A%84%E8%9B%9B%E8%9B%9B"><span class="toc-text">蛛蛛…嘿嘿♥我的蛛蛛</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Misc"><span class="toc-text">Misc</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A5%BD%E5%BA%B7%E7%9A%84%E6%B5%81%E9%87%8F"><span class="toc-text">好康的流量</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A5%AD%E5%8D%A1%E7%9A%84uno"><span class="toc-text">饭卡的uno</span></a></li></ol>
+</div></main>
+            <aside class="left-column">
+              
+              <div class="card card-author">
+                
+  <img 
+    src="/img/logo.png" 
+    class="author-img"
+    width="88"
+    height="88"
+    alt="author avatar">
+
+<p class="author-name">pankas</p>
+<p class="author-description">pankas的小窝</p>
+<div class="author-message">
+  <a 
+    class="author-posts-count" 
+    href="/archives">
+    <span>5</span>
+    <span>文章</span>
+  </a>
+  <a 
+    class="author-categories-count" 
+    href="/categories">
+    <span>2</span>
+    <span>分类</span>
+  </a>
+  <a 
+    class="author-tags-count" 
+    href="/tags">
+    <span>2</span>
+    <span>标签</span>
+  </a>
+</div>
+
+              </div>
+               <div class="sticky-tablet">
+  
+  
+    <article class="display-when-two-columns spacer">
+      <div class="card card-content toc-card">
+        <div class="toc-header">
+  <i 
+    class="iconfont icon-menu" 
+    style="padding-right: 2px;">
+  </i>目录
+</div>
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#web"><span class="toc-text">web</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#easy-auth"><span class="toc-text">easy_auth</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tetris-plus"><span class="toc-text">Tetris plus</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Fujiwara-Tofu-Shop"><span class="toc-text">Fujiwara Tofu Shop</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%9B%9B%E8%9B%9B%E2%80%A6%E5%98%BF%E5%98%BF%E2%99%A5%E6%88%91%E7%9A%84%E8%9B%9B%E8%9B%9B"><span class="toc-text">蛛蛛…嘿嘿♥我的蛛蛛</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Misc"><span class="toc-text">Misc</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A5%BD%E5%BA%B7%E7%9A%84%E6%B5%81%E9%87%8F"><span class="toc-text">好康的流量</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A5%AD%E5%8D%A1%E7%9A%84uno"><span class="toc-text">饭卡的uno</span></a></li></ol>
+      </div>
+    </article>
+  
+  
+  <article class="card card-content categories-widget">
+    <div class="categories-card">
+  <div class="categories-header">
+    <i 
+      class="iconfont icon-fenlei" 
+      style="padding-right: 2px;">
+    </i>分类
+  </div>
+  <div class="categories-list">
+    
+      <a href="/categories/%E6%97%A5%E5%B8%B8/">
+        <div class="categories-list-item">
+          日常
+          <span class="categories-list-item-badge">1</span>
+        </div>
+      </a>
+    
+      <a href="/categories/CTF-WP/">
+        <div class="categories-list-item">
+          CTF-WP
+          <span class="categories-list-item-badge">4</span>
+        </div>
+      </a>
+    
+  </div>
+</div>
+  </article>
+  
+  <article class="card card-content tags-widget">
+    <div class="tags-card">
+  <div class="tags-header">
+    <i 
+      class="iconfont icon-biaoqian" 
+      style="padding-right: 2px;">
+    </i>热门标签
+  </div>
+  <div class="tags-list">
+    
+      <a 
+        href="/tags/CTF-HGAME/" 
+        title="CTF HGAME">
+        <div class="tags-list-item">CTF HGAME</div>
+      </a>
+    
+      <a 
+        href="/tags/%E9%9A%8F%E7%AC%94/" 
+        title="随笔">
+        <div class="tags-list-item">随笔</div>
+      </a>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+            </aside>
+            <aside class="right-column">
+              <div class="sticky-widescreen">
+  
+  
+    <article class="card card-content toc-card">
+      <div class="toc-header">
+  <i 
+    class="iconfont icon-menu" 
+    style="padding-right: 2px;">
+  </i>目录
+</div>
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#web"><span class="toc-text">web</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#easy-auth"><span class="toc-text">easy_auth</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tetris-plus"><span class="toc-text">Tetris plus</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Fujiwara-Tofu-Shop"><span class="toc-text">Fujiwara Tofu Shop</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%9B%9B%E8%9B%9B%E2%80%A6%E5%98%BF%E5%98%BF%E2%99%A5%E6%88%91%E7%9A%84%E8%9B%9B%E8%9B%9B"><span class="toc-text">蛛蛛…嘿嘿♥我的蛛蛛</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Misc"><span class="toc-text">Misc</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A5%BD%E5%BA%B7%E7%9A%84%E6%B5%81%E9%87%8F"><span class="toc-text">好康的流量</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A5%AD%E5%8D%A1%E7%9A%84uno"><span class="toc-text">饭卡的uno</span></a></li></ol>
+    </article>
+  
+  
+  <article class="card card-content">
+    <div class="recent-posts-card">
+  <div class="recent-posts-header">
+    <i 
+      class="iconfont icon-wenzhang_huaban" 
+      style="padding-right: 2px;">
+    </i>最近文章
+  </div>
+  <div class="recent-posts-list">
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2022-02-20</div>
+        <a href="/2022/02/20/%E5%AF%92%E5%81%87%E6%80%BB%E7%BB%93/"><div class="recent-posts-item-content">寒假总结</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2022-02-20</div>
+        <a href="/2022/02/20/week1-pankas/"><div class="recent-posts-item-content">HGAME 2022 Week1 writeup by pankas</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2022-02-20</div>
+        <a href="/2022/02/20/week3-pankas/"><div class="recent-posts-item-content">HGAME 2022 Week3 writeup by pankas</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2022-02-20</div>
+        <a href="/2022/02/20/week4-pankas/"><div class="recent-posts-item-content">HGAME 2022 Week4 writeup by pankas</div></a>
+      </div>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </div>
+     
+    <footer class="footer">
+  <div class="footer-container">
+    <div>
+      <div class="footer-dsc">
+        <span>
+          Copyright ©
+          
+            2020 -
+          
+          2022
+        </span>
+        &nbsp;
+        <a 
+          href="/" 
+          class="footer-link">
+          pankas'blog
+        </a>
+      </div>
+    </div>
+
+    
+      <div class="footer-dsc">
+        
+          Powered by
+          <a 
+            href="https://hexo.io/" 
+            class="footer-link" 
+            target="_blank" 
+            rel="nofollow noopener noreferrer">
+            &nbsp;Hexo
+          </a>
+        
+        
+          <span>&nbsp;|&nbsp;</span>
+        
+        
+          Theme -
+          <a 
+            href="https://github.com/theme-kaze" 
+            class="footer-link" 
+            target="_blank"
+            rel="nofollow noopener noreferrer">
+            &nbsp;Kaze
+          </a>
+        
+      </div>
+    
+    
+    
+    
+</footer> 
+    
+  <a 
+    role="button" 
+    id="scrollbutton" 
+    class="basebutton" 
+    aria-label="回到顶部">
+    <i class="iconfont icon-arrowleft button-icon"></i>
+  </a>
+
+<a 
+  role="button" 
+  id="menubutton"
+  aria-label="menu button"
+  class="basebutton">
+  <i class="iconfont icon-menu button-icon"></i>
+</a>
+<a 
+  role="button" 
+  id="popbutton" 
+  class="basebutton" 
+  aria-label="控制中心">
+  <i class="iconfont icon-expand button-icon"></i>
+</a>
+<a 
+  role="button" 
+  id="darkbutton" 
+  class="basebutton darkwidget" 
+  aria-label="夜色模式">
+  <i class="iconfont icon-weather button-icon"></i>
+</a>
+<a 
+  role="button" 
+  id="searchbutton" 
+  class="basebutton searchwidget" 
+  aria-label="搜索">
+  <i class="iconfont icon-search button-icon"></i>
+</a> 
+     
+     
+     
+      <script>
+  var addImgLayout = function () {
+    var img = document.querySelectorAll('.post-content img')
+    var i
+    for (i = 0; i < img.length; i++) {
+      var wrapper = document.createElement('a')
+      wrapper.setAttribute('href', img[i].getAttribute('data-src'))
+      wrapper.setAttribute('aria-label', 'illustration')
+      wrapper.style.cssText =
+        'width: 100%; display: flex; justify-content: center;'
+      if (img[i].alt) wrapper.dataset.caption = img[i].alt
+      wrapper.dataset.nolink = true
+      img[i].before(wrapper)
+      wrapper.append(img[i])
+      var divWrap = document.createElement('div')
+      divWrap.classList.add('gallery')
+      wrapper.before(divWrap)
+      divWrap.append(wrapper)
+    }
+    baguetteBox.run('.gallery')
+  }
+</script>
+<script>
+  loadScript(
+    "/js/lib/lightbox/baguetteBox.min.js",
+    addImgLayout
+  )
+</script>
+ 
+     
+     
+    <script src="/js/main.js"></script> 
+     
+    
+      <script>
+        var addLazyload = function () {
+          var observer = lozad('.lozad', {
+            load: function (el) {
+              el.srcset = el.getAttribute('data-src')
+            },
+            loaded: function (el) {
+              el.classList.add('loaded')
+            },
+          })
+          observer.observe()
+        }
+      </script>
+      <script>
+        loadScript('/js/lib/lozad.min.js', addLazyload)
+      </script>
+     
+    
+    
+      <script>
+        setTimeout(() => {localSearch("search.json")}, 0)
+      </script>
+    
+  </body>
+</html>

