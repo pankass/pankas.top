@@ -325,7 +325,7 @@
     
     
       <span class="dot"></span>
-      <span>961 字</span>
+      <span>960 字</span>
     
   </div>
   
@@ -352,28 +352,27 @@
   <div 
     id="section" 
     class="post-content">
-    <p>[TOC]</p>
-<h2 id="web"><a href="#web" class="headerlink" title="web"></a>web</h2><h3 id="easy-auth"><a href="#easy-auth" class="headerlink" title="easy_auth"></a>easy_auth</h3><p>​    先看一下题目，有提示</p>
+    <h2 id="web"><a href="#web" class="headerlink" title="web"></a>web</h2><h3 id="easy-auth"><a href="#easy-auth" class="headerlink" title="easy_auth"></a>easy_auth</h3><p>​    先看一下题目，有提示</p>
 <pre class="line-numbers language-none"><code class="language-none">尊贵的admin写了个todo帮助自己管理日常，但他好像没调试完就部署了....一个月后，当他再一次打开他的小网站，似乎忘记了密码...他的todo之前记录了很重要的东西，快帮帮他
 不要爆破！<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 
 <p>这里目标网站时在开发中的，flag应该在admin用户里。</p>
-<p><img src="/hgameWp.assets/image-20220127132929885.png" alt="image-20220127132929885" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/hgameWp.assets/image-20220127132929885.png" class="lozad post-image"></p>
+<p><img src="/post-img/hgameWp.assets/image-20220127132929885.png" alt="image-20220127132929885" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/post-img/hgameWp.assets/image-20220127132929885.png" class="lozad post-image"></p>
 <p>打开发现输入admin密码随便写一个，结果不对，那注册一个看看</p>
 <p>注册号登录进去</p>
-<img src="hgameWp.assets/image-20220127133114867.png" alt="image-20220127133114867" style="zoom: 33%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="hgameWp.assets/image-20220127133114867.png" class="lozad post-image">
+<img src="/post-img/hgameWp.assets/image-20220127133114867.png" alt="image-20220127133114867" style="zoom: 33%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/post-img/hgameWp.assets/image-20220127133114867.png" class="lozad post-image">
 
 <p>看了下这个页面也没什么，抓一下包发现token</p>
-<p><img src="/hgameWp.assets/image-20220127133220957.png" alt="image-20220127133220957" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/hgameWp.assets/image-20220127133220957.png" class="lozad post-image"></p>
+<p><img src="/post-img/week1-pankas.assets/image-20220127133220957.png" alt="image-20220127133220957" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/post-img/week1-pankas.assets/image-20220127133220957.png" class="lozad post-image"></p>
 <p>这个token是<strong>JWT</strong>，网上搜索一下进能知道只要找到了JWT的secret就可以伪造token发送到服务器通过验证了</p>
 <p>由于题目说是还在调试当中， 猜测secret为空，试一试。</p>
 <p>到<strong>jwt.io</strong>这个网站里</p>
-<p><img src="/hgameWp.assets/image-20220127133830723.png" alt="image-20220127133830723" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/hgameWp.assets/image-20220127133830723.png" class="lozad post-image"></p>
+<p><img src="/post-img/week1-pankas.assets/image-20220127133830723.png" alt="image-20220127133830723" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/post-img/week1-pankas.assets/image-20220127133830723.png" class="lozad post-image"></p>
 <p>将UserName改为admin，ID改为1(最贵的admin开发者肯定是网站注册的第一个人)，下面的secret为空，</p>
 <p>将修改后的token发送</p>
-<p><img src="/hgameWp.assets/image-20220127134122639.png" alt="image-20220127134122639" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/hgameWp.assets/image-20220127134122639.png" class="lozad post-image"></p>
+<p><img src="/post-img/week1-pankas.assets/image-20220127134122639.png" alt="image-20220127134122639" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/post-img/week1-pankas.assets/image-20220127134122639.png" class="lozad post-image"></p>
 <p>拿到flag</p>
-<p><img src="/hgameWp.assets/image-20220127134200287.png" alt="image-20220127134200287" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/hgameWp.assets/image-20220127134200287.png" class="lozad post-image"></p>
+<p><img src="/post-img/week1-pankas.assets/image-20220127134200287.png" alt="image-20220127134200287" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/post-img/week1-pankas.assets/image-20220127134200287.png" class="lozad post-image"></p>
 <p>这里简单说一下原理</p>
 <pre class="line-numbers language-none"><code class="language-none">验证方法：首先服务端会产生一个secret，然后以这个secret作为密钥，使用第一部分选择的加密方式（这里就是HS256），对第一部分和第二部分拼接的结果进行加密，然后把加密结果放到第三部分。
 因为加密算法我们已经知道了，如果我们只要再得到加密的secret，我们就能伪造数据，并且通过服务器的检查。<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
@@ -381,35 +380,35 @@
 
 
 <h3 id="Tetris-plus"><a href="#Tetris-plus" class="headerlink" title="Tetris plus"></a>Tetris plus</h3><p>提示说要玩够3000分，不可能的。像这类浏览器小游戏那肯定是先查看js源码。</p>
-<p><img src="/hgameWp.assets/image-20220127140709436.png" alt="image-20220127140709436" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/hgameWp.assets/image-20220127140709436.png" class="lozad post-image"></p>
+<p><img src="/post-img/week1-pankas.assets/image-20220127140709436.png" alt="image-20220127140709436" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/post-img/week1-pankas.assets/image-20220127140709436.png" class="lozad post-image"></p>
 <p>结果在这个checking.js文件里发现了jsfuck代码，jsfuck可以直接放到控制台运行，试试看。</p>
-<p><img src="/hgameWp.assets/image-20220127140855716.png" alt="image-20220127140855716" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/hgameWp.assets/image-20220127140855716.png" class="lozad post-image"></p>
+<p><img src="/post-img/week1-pankas.assets/image-20220127140855716.png" alt="image-20220127140855716" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/post-img/week1-pankas.assets/image-20220127140855716.png" class="lozad post-image"></p>
 <p>放到控制台运行拿到flag。</p>
 <h3 id="Fujiwara-Tofu-Shop"><a href="#Fujiwara-Tofu-Shop" class="headerlink" title="Fujiwara Tofu Shop"></a>Fujiwara Tofu Shop</h3><p>秋名山飙车啊，进去看一看。</p>
-<img src="hgameWp.assets/image-20220127141047327.png" alt="image-20220127141047327" style="zoom: 80%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="hgameWp.assets/image-20220127141047327.png" class="lozad post-image">
+<img src="/post-img/hgameWp.assets/image-20220127141047327.png" alt="image-20220127141047327" style="zoom: 80%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/post-img/hgameWp.assets/image-20220127141047327.png" class="lozad post-image">
 
 <p>提示说首先要到<code>qiumingshan.net</code>这个地方去，那么在web中的意思就是要让你的referer为<code>qiumingshan.net</code></p>
 <p>用HackBar添加请求头referer</p>
-<img src="hgameWp.assets/image-20220127141412800.png" alt="image-20220127141412800" style="zoom:67%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="hgameWp.assets/image-20220127141412800.png" class="lozad post-image">
+<img src="/post-img/hgameWp.assets/image-20220127141412800.png" alt="image-20220127141412800" style="zoom:67%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/post-img/hgameWp.assets/image-20220127141412800.png" class="lozad post-image">
 
 <p>Execute后又出现</p>
-<img src="hgameWp.assets/image-20220127141606300.png" alt="image-20220127141606300" style="zoom:80%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="hgameWp.assets/image-20220127141606300.png" class="lozad post-image">
+<img src="/post-img/hgameWp.assets/image-20220127141606300.png" alt="image-20220127141606300" style="zoom:80%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/post-img/hgameWp.assets/image-20220127141606300.png" class="lozad post-image">
 
 <p>通行证啊，那么修改一下User-Agent为<code>Hachi-Roku</code>即可</p>
-<img src="hgameWp.assets/image-20220127141753777.png" alt="image-20220127141753777" style="zoom:80%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="hgameWp.assets/image-20220127141753777.png" class="lozad post-image">
+<img src="/post-img/hgameWp.assets/image-20220127141753777.png" alt="image-20220127141753777" style="zoom:80%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/post-img/hgameWp.assets/image-20220127141753777.png" class="lozad post-image">
 
 <p>继续得到</p>
-<img src="hgameWp.assets/image-20220127141835437.png" alt="image-20220127141835437" style="zoom:80%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="hgameWp.assets/image-20220127141835437.png" class="lozad post-image">
+<img src="/post-img/hgameWp.assets/image-20220127141835437.png" alt="image-20220127141835437" style="zoom:80%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/post-img/hgameWp.assets/image-20220127141835437.png" class="lozad post-image">
 
 <p>要求其cookie的<strong>味道</strong>是<code>Raspberry</code>，那么在Cookies上添加上<code>flavor=Raspberry</code></p>
-<img src="hgameWp.assets/image-20220127142146069.png" alt="image-20220127142146069" style="zoom:80%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="hgameWp.assets/image-20220127142146069.png" class="lozad post-image">
+<img src="/post-img/hgameWp.assets/image-20220127142146069.png" alt="image-20220127142146069" style="zoom:80%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/post-img/hgameWp.assets/image-20220127142146069.png" class="lozad post-image">
 
 <p>之后…..还有，要求加油到100，查看请求头可以看到当前<code>Gasoline</code>为0</p>
-<p><img src="/hgameWp.assets/image-20220127142312068.png" alt="image-20220127142312068" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/hgameWp.assets/image-20220127142312068.png" class="lozad post-image"></p>
+<p><img src="/post-img/week1-pankas.assets/image-20220127142312068.png" alt="image-20220127142312068" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/post-img/week1-pankas.assets/image-20220127142312068.png" class="lozad post-image"></p>
 <p>那么在请求头里添加上<code>Gasoline: 100</code>即可</p>
-<p><img src="/hgameWp.assets/image-20220127142742778.png" alt="image-20220127142742778" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/hgameWp.assets/image-20220127142742778.png" class="lozad post-image"></p>
+<p><img src="/post-img/week1-pankas.assets/image-20220127142742778.png" alt="image-20220127142742778" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/post-img/week1-pankas.assets/image-20220127142742778.png" class="lozad post-image"></p>
 <p>之后又要求其请求从本地发出来</p>
-<img src="hgameWp.assets/image-20220127142906082.png" alt="image-20220127142906082" style="zoom:67%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="hgameWp.assets/image-20220127142906082.png" class="lozad post-image">
+<img src="/post-img/hgameWp.assets/image-20220127142906082.png" alt="image-20220127142906082" style="zoom:67%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/post-img/hgameWp.assets/image-20220127142906082.png" class="lozad post-image">
 
 
 
@@ -424,13 +423,13 @@ Client-IP:
 X-Real-IP:<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p>全都试一遍发现只有<code>X-Real-IP</code>没有被ban，伪造IP为本地127.0.0.1</p>
-<img src="hgameWp.assets/image-20220127143201763.png" alt="image-20220127143201763" style="zoom:80%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="hgameWp.assets/image-20220127143201763.png" class="lozad post-image">
+<img src="/post-img/hgameWp.assets/image-20220127143201763.png" alt="image-20220127143201763" style="zoom:80%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/post-img/hgameWp.assets/image-20220127143201763.png" class="lozad post-image">
 
 <p>执行后成功拿到flag</p>
-<p><img src="/hgameWp.assets/image-20220127143402852.png" alt="image-20220127143402852" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/hgameWp.assets/image-20220127143402852.png" class="lozad post-image"></p>
+<p><img src="/post-img/week1-pankas.assets/image-20220127143402852.png" alt="image-20220127143402852" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/post-img/week1-pankas.assets/image-20220127143402852.png" class="lozad post-image"></p>
 <h3 id="蛛蛛…嘿嘿♥我的蛛蛛"><a href="#蛛蛛…嘿嘿♥我的蛛蛛" class="headerlink" title="蛛蛛…嘿嘿♥我的蛛蛛"></a>蛛蛛…嘿嘿♥我的蛛蛛</h3><p>这题也是个小游戏，这个按钮也是越点越多，而且只有一个是真的。先玩几关看一下它响应的内容，很有规律。</p>
 <p>每次都会在原url基础上拼接一个<code>?key=##########</code>。那直接交给爬虫。</p>
-<p><img src="/hgameWp.assets/image-20220127163416048.png" alt="image-20220127163416048" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/hgameWp.assets/image-20220127163416048.png" class="lozad post-image"></p>
+<p><img src="/post-img/week1-pankas.assets/image-20220127163416048.png" alt="image-20220127163416048" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/post-img/week1-pankas.assets/image-20220127163416048.png" class="lozad post-image"></p>
 <p>不废话，上代码。</p>
 <pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> requests
 <span class="token keyword">import</span> time
@@ -449,25 +448,25 @@ X-Real-IP:<span aria-hidden="true" class="line-numbers-rows"><span></span><span>
 <span class="token keyword">if</span> __name__ <span class="token operator">==</span> <span class="token string">'__main__'</span><span class="token punctuation">:</span>
     run<span class="token punctuation">(</span><span class="token string">'https://hgame-spider.vidar.club/90bc5cb81b'</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-<img src="hgameWp.assets/image-20220127163813449.png" alt="image-20220127163813449" style="zoom:80%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="hgameWp.assets/image-20220127163813449.png" class="lozad post-image">
+<img src="/post-img/hgameWp.assets/image-20220127163813449.png" alt="image-20220127163813449" style="zoom:80%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/post-img/hgameWp.assets/image-20220127163813449.png" class="lozad post-image">
 
 <p>发现在100关后面，点开爬到的url</p>
-<img src="hgameWp.assets/image-20220127163922985.png" alt="image-20220127163922985" style="zoom:80%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="hgameWp.assets/image-20220127163922985.png" class="lozad post-image">
+<img src="/post-img/hgameWp.assets/image-20220127163922985.png" alt="image-20220127163922985" style="zoom:80%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/post-img/hgameWp.assets/image-20220127163922985.png" class="lozad post-image">
 
 <p>在请求头里发现flag</p>
 <h2 id="Misc"><a href="#Misc" class="headerlink" title="Misc"></a>Misc</h2><h3 id="好康的流量"><a href="#好康的流量" class="headerlink" title="好康的流量"></a>好康的流量</h3><p>下载附件拿到一份截获的流量，用wireshark打开用导出为邮件</p>
-<p><img src="/hgameWp.assets/image-20220128152056822.png" alt="image-20220128152056822" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/hgameWp.assets/image-20220128152056822.png" class="lozad post-image"></p>
+<p><img src="/post-img/week1-pankas.assets/image-20220128152056822.png" alt="image-20220128152056822" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/post-img/week1-pankas.assets/image-20220128152056822.png" class="lozad post-image"></p>
 <p>拿到<strong>涩图</strong></p>
-<img src="hgameWp.assets/image-20220128152140055.png" alt="image-20220128152140055" style="zoom:50%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="hgameWp.assets/image-20220128152140055.png" class="lozad post-image">
+<img src="/post-img/hgameWp.assets/image-20220128152140055.png" alt="image-20220128152140055" style="zoom:50%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/post-img/hgameWp.assets/image-20220128152140055.png" class="lozad post-image">
 
 <p>这个图片试了很多方法，最后发现使用stegsolver打开发现一个条形码。</p>
-<p><img src="/hgameWp.assets/image-20220128152341206.png" alt="image-20220128152341206" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/hgameWp.assets/image-20220128152341206.png" class="lozad post-image"></p>
+<p><img src="/post-img/week1-pankas.assets/image-20220128152341206.png" alt="image-20220128152341206" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/post-img/week1-pankas.assets/image-20220128152341206.png" class="lozad post-image"></p>
 <p>扫码拿到一半的flag。</p>
 <p>还有一半应该是lsb隐藏的。</p>
-<p><img src="/hgameWp.assets/image-20220128152834181.png" alt="image-20220128152834181" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/hgameWp.assets/image-20220128152834181.png" class="lozad post-image"></p>
+<p><img src="/post-img/week1-pankas.assets/image-20220128152834181.png" alt="image-20220128152834181" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/post-img/week1-pankas.assets/image-20220128152834181.png" class="lozad post-image"></p>
 <p>使用工具拿到另一半。（这里其实是试出来的）</p>
 <h2 id="饭卡的uno"><a href="#饭卡的uno" class="headerlink" title="饭卡的uno"></a>饭卡的uno</h2><p>下载附件使用 <strong>010editor</strong>打开就是flag</p>
-<p><img src="/hgameWp.assets/image-20220128153720642.png" alt="image-20220128153720642" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/hgameWp.assets/image-20220128153720642.png" class="lozad post-image"></p>
+<p><img src="/post-img/week1-pankas.assets/image-20220128153720642.png" alt="image-20220128153720642" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/post-img/week1-pankas.assets/image-20220128153720642.png" class="lozad post-image"></p>
 
   </div>
   <div>
