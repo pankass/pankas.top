@@ -353,9 +353,7 @@
     id="section" 
     class="post-content">
     <h2 id="web"><a href="#web" class="headerlink" title="web"></a>web</h2><h3 id="easy-auth"><a href="#easy-auth" class="headerlink" title="easy_auth"></a>easy_auth</h3><p>​    先看一下题目，有提示</p>
-<pre class="line-numbers language-none"><code class="language-none">尊贵的admin写了个todo帮助自己管理日常，但他好像没调试完就部署了....一个月后，当他再一次打开他的小网站，似乎忘记了密码...他的todo之前记录了很重要的东西，快帮帮他
-不要爆破！<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
+<p>​    尊贵的admin写了个todo帮助自己管理日常，但他好像没调试完就部署了….一个月后，当他再一次打开他的小网站，似乎忘记了密码…他的todo之前记录了很重要的东西，快帮帮他<br>不要爆破！</p>
 <p>这里目标网站时在开发中的，flag应该在admin用户里。</p>
 <p><img src="/post-img/hgameWp.assets/image-20220127132929885.png" alt="image-20220127132929885" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/post-img/hgameWp.assets/image-20220127132929885.png" class="lozad post-image"></p>
 <p>打开发现输入admin密码随便写一个，结果不对，那注册一个看看</p>
@@ -374,11 +372,7 @@
 <p>拿到flag</p>
 <p><img src="/post-img/week1-pankas.assets/image-20220127134200287.png" alt="image-20220127134200287" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/post-img/week1-pankas.assets/image-20220127134200287.png" class="lozad post-image"></p>
 <p>这里简单说一下原理</p>
-<pre class="line-numbers language-none"><code class="language-none">验证方法：首先服务端会产生一个secret，然后以这个secret作为密钥，使用第一部分选择的加密方式（这里就是HS256），对第一部分和第二部分拼接的结果进行加密，然后把加密结果放到第三部分。
-因为加密算法我们已经知道了，如果我们只要再得到加密的secret，我们就能伪造数据，并且通过服务器的检查。<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
-
-
+<p>验证方法：首先服务端会产生一个secret，然后以这个secret作为密钥，使用第一部分选择的加密方式（这里就是HS256），对第一部分和第二部分拼接的结果进行加密，然后把加密结果放到第三部分。<br>因为加密算法我们已经知道了，如果我们只要再得到加密的secret，我们就能伪造数据，并且通过服务器的检查。</p>
 <h3 id="Tetris-plus"><a href="#Tetris-plus" class="headerlink" title="Tetris plus"></a>Tetris plus</h3><p>提示说要玩够3000分，不可能的。像这类浏览器小游戏那肯定是先查看js源码。</p>
 <p><img src="/post-img/week1-pankas.assets/image-20220127140709436.png" alt="image-20220127140709436" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/post-img/week1-pankas.assets/image-20220127140709436.png" class="lozad post-image"></p>
 <p>结果在这个checking.js文件里发现了jsfuck代码，jsfuck可以直接放到控制台运行，试试看。</p>
